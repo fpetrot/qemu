@@ -1,0 +1,16 @@
+component:
+  name: qemu-uart-16550
+  type: uart-16550
+  class: QemuUart16550
+  include:
+    - components/dev/uart_16550/uart_16550.h
+  description: UART 16550 compatible provided by QEMU.
+  parameters:
+    baudbase:
+      type: integer
+      default: 460800
+      description: Base Baud value.
+    regshift:
+      type: integer
+      default: 2
+      description: Register offset shift.

@@ -1,0 +1,15 @@
+component:
+  name: qemu-cortex-a15-priv
+  type: cpu-arm
+  class: QemuCpuFactory<QemuCpuArm>
+  discover: QemuInstance::get().discover(name, cp)
+  include:
+    - components/cpu/arm.h
+    - qemu/factory.h
+  description: ARM CPU simulation provided by QEMU.
+  parameters:
+    model:
+      type: string
+      default: "cortex-a15"
+      description: CPU model.
+
