@@ -4,7 +4,7 @@ project(Rabbits_Qemu_Components)
 find_package(Rabbits REQUIRED)
 
 include_directories(
-	"../sc-qemu/rabbits"
+	"${SC_QEMU_DIR}/rabbits"
 	"${PROJECT_SOURCE_DIR}"
 )
 
