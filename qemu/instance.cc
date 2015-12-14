@@ -68,7 +68,7 @@ void QemuInstance::lib_init()
 
     DBG_STREAM("Initializing sc-qemu with "
                << m_discovery.cpu_count << " " << m_discovery.cpu_model
-               << " cpu(s)" << std::endl);
+               << " cpu(s)\n");
 
     m_lib.register_io_callback(m_master);
     m_lib.init(lib_name, m_discovery.cpu_count, m_discovery.cpu_model);

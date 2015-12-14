@@ -26,7 +26,7 @@ using namespace sc_core;
 
 sc_signal<bool>* QemuIrqIn::connect(IrqIn &in)
 {
-    ERR_STREAM("qemu irq in to irq in connection n/i" << std::endl);
+    ERR_STREAM("qemu irq in to irq in connection n/i\n");
     abort();
 }
 
@@ -45,7 +45,7 @@ sc_signal<bool>* QemuIrqIn::connect(IrqOut &out)
 
 	DBG_STREAM("sc-qemu internal IRQ connection " 
 		   << qout->m_comp->name() << ":" << qout->name() << " -> "
-		   << m_comp->name() << ":" << name() << std::endl);
+		   << m_comp->name() << ":" << name() << "\n");
 
         lib->qdev_irq_connect(qout->m_comp->m_qdev, qout->m_qemu_idx,  m_comp->m_qdev, m_qemu_idx);
 
@@ -83,7 +83,7 @@ sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqIn &in)
 
 	DBG_STREAM("sc-qemu internal IRQ connection " 
 		   << m_comp->name() << ":" << name() << " -> "
-		   << qin->m_comp->name() << ":" << qin->name() << std::endl);
+		   << qin->m_comp->name() << ":" << qin->name() << "\n");
 
         lib->qdev_irq_connect(m_comp->m_qdev, m_qemu_idx,  qin->m_comp->m_qdev, qin->m_qemu_idx);
 
@@ -100,12 +100,12 @@ sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqIn &in)
 
 sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqOut &out)
 {
-    ERR_STREAM("qemu irq out to irq out connection n/i" << std::endl);
+    ERR_STREAM("qemu irq out to irq out connection n/i\n");
     abort();
 }
 
 sc_core::sc_out<bool>& QemuIrqOut::get_port()
 {
-    ERR_STREAM("qemu to systemc irq forwarding n/i" << std::endl);
+    ERR_STREAM("qemu to systemc irq forwarding n/i\n");
     abort();
 }

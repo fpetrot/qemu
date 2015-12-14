@@ -34,7 +34,7 @@ QemuUart16550::QemuUart16550(std::string name, ComponentParameters &params)
         map = descr["bus-mapping"].as<AddressRange>();
     } catch(PlatformDescription::InvalidConversionException e) {
         WRN_STREAM("Missing or invalid `bus-mapping` attribute for component `"
-                   << name << "`" << std::endl);
+                   << name << "`\n");
         return;
     }
 

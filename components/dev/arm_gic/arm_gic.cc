@@ -61,7 +61,7 @@ void QemuArmGic::mem_map(ComponentParameters &params)
     try {
         map = descr["bus-mapping"].as<AddressRange>();
     } catch(PlatformDescription::InvalidConversionException e) {
-        WRN_STREAM("Missing or invalid `bus-mapping` attribute for component `" << name() << "`" << std::endl);
+        WRN_STREAM("Missing or invalid `bus-mapping` attribute for component `" << name() << "`\n");
         return;
     }
 
