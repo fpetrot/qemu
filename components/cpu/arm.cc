@@ -18,9 +18,12 @@
  */
 
 #include <sc_qemu.h>
+#include <rabbits/logger.h>
 
 #include "arm.h"
 #include "libsc_qemu/libsc_qemu.h"
+
+using std::string;
 
 QemuCpuArm::QemuCpuArm(std::string name, ComponentParameters &params)
     : QemuCpu(name, params)
@@ -28,12 +31,19 @@ QemuCpuArm::QemuCpuArm(std::string name, ComponentParameters &params)
     declare_irq_in("irq", SC_QEMU_ARM_IRQ_IRQ);
     declare_irq_in("fiq", SC_QEMU_ARM_IRQ_FIQ);
 
-    if (params["model"].as<std::string>() == "cortex-a15") {
+    if (params["model"].as<string>() == "cortex-a15") {
         /* Timers irq */
         declare_irq_out("timer-phys", 0);
         declare_irq_out("timer-virt", 1);
         declare_irq_out("timer-hyp", 2);
         declare_irq_out("timer-sec", 3);
+    }
+
+    string gdb_port = params["gdb-server"].as<string>();
+
+    if (gdb_port != "") {
+        INF_STREAM("Starting gdb server on port " << gdb_port << "\n");
+        m_lib.start_gdb_server("tcp::" + gdb_port);
     }
 }
 

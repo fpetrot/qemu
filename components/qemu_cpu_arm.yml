@@ -11,3 +11,9 @@ component:
       type: string
       default: "cortex-a15"
       description: CPU model.
+    gdb-server:
+      type: string
+      default: ""
+      description: <
+        Start a GDB server on the specified port.
+        Specifying this option on one CPU affects all QEMU cpus.
