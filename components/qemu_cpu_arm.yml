@@ -14,6 +14,6 @@ component:
     gdb-server:
       type: string
       default: ""
-      description: <
+      description: |
         Start a GDB server on the specified port.
         Specifying this option on one CPU affects all QEMU cpus.
