@@ -91,6 +91,8 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
     s.cpu_model = cpu_model.c_str();
     s.num_cpu = num_cpu;
     s.opaque = this;
+    s.max_run_time = 0;
+    s.cpu_mips_shift = 0;
 
     m_qemu_ctx = qemu_init(&s);
 }
@@ -107,10 +109,10 @@ void LibScQemu::map_dmi(uint32_t base, uint32_t size, void *data)
     m_qemu_import->map_dmi(m_qemu_ctx, base, size, data);
 }
 
-bool LibScQemu::cpus_loop(void)
+bool LibScQemu::cpus_loop(int64_t *elapsed)
 {
     assert(m_qemu_import);
-    return m_qemu_import->cpu_loop(m_qemu_ctx);
+    return m_qemu_import->cpu_loop(m_qemu_ctx, elapsed);
 }
 
 sc_qemu_qdev * LibScQemu::cpu_get_qdev(int cpu_idx)

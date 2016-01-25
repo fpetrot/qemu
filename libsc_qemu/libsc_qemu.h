@@ -67,7 +67,7 @@ public:
     void map_io(uint32_t base, uint32_t size);
     void map_dmi(uint32_t base, uint32_t size, void *data);
 
-    bool cpus_loop(void);
+    bool cpus_loop(int64_t* elapsed);
 
     /* Return the qdev associated to CPU cpu_idx */
     sc_qemu_qdev * cpu_get_qdev(int cpu_idx);

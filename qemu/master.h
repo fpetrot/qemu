@@ -49,15 +49,16 @@ protected:
 
     void mainloop_thread() {
         bool qemu_want_quit = false;
+        int64_t elapsed;
 
         for(;;) {
-            qemu_want_quit = m_lib.cpus_loop();
+            qemu_want_quit = m_lib.cpus_loop(&elapsed);
 
             if(qemu_want_quit) {
                 sc_core::sc_stop();
             }
 
-            wait(100, sc_core::SC_NS);
+            wait(elapsed, sc_core::SC_NS);
         }
     }
 
