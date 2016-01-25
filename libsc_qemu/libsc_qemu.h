@@ -45,6 +45,9 @@ public:
 
 class LibScQemu {
 private:
+    int m_insn_limit;
+    int m_mips_shift;
+
     qemu_context *m_qemu_ctx;
     qemu_import *m_qemu_import;
     DynLib *m_lib;
@@ -60,6 +63,10 @@ private:
 public:
     LibScQemu();
     ~LibScQemu();
+
+    /* Init data */
+    void set_insn_limit(int insn_limit) { m_insn_limit = insn_limit; }
+    void set_mips_shift(int mips_shift) { m_mips_shift = mips_shift; }
 
     void init(std::string lib_path, int num_cpu, std::string cpu_model);
     bool is_inited() const { return m_lib != NULL; }
