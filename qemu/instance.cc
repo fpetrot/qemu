@@ -52,8 +52,21 @@ void QemuInstance::discover(const std::string &name, ComponentParameters &params
     const string cpu_type = descr["type"].as<string>();
     const string model = params["model"].as<string>();
 
+    int insn_limit = params["insn-limit"].as<int>();
+    int mips_shift = params["mips-shift"].as<int>();
+
     if (cpu_type == "cpu-arm") {
         add_cpu(CpuType::ARM, model);
+    }
+
+    if (insn_limit > 0) {
+        DBG_STREAM("Setting instruction execution limit to " << insn_limit << "\n");
+        m_discovery.insn_limit = insn_limit;
+    }
+
+    if (mips_shift > 0) {
+        DBG_STREAM("Setting MIPS shift to " << mips_shift << "\n");
+        m_discovery.mips_shift = mips_shift;
     }
 }
 
@@ -71,5 +84,7 @@ void QemuInstance::lib_init()
                << " cpu(s)\n");
 
     m_lib.register_io_callback(m_master);
+    m_lib.set_insn_limit(m_discovery.insn_limit);
+    m_lib.set_mips_shift(m_discovery.mips_shift);
     m_lib.init(lib_name, m_discovery.cpu_count, m_discovery.cpu_model);
 }

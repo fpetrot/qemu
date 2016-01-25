@@ -29,7 +29,9 @@
 
 
 LibScQemu::LibScQemu()
-    : m_qemu_ctx(NULL)
+    : m_insn_limit(0)
+    , m_mips_shift(0)
+    , m_qemu_ctx(NULL)
     , m_qemu_import(NULL)
     , m_lib(NULL)
     , m_io_cb(NULL)
@@ -91,8 +93,8 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
     s.cpu_model = cpu_model.c_str();
     s.num_cpu = num_cpu;
     s.opaque = this;
-    s.max_run_time = 0;
-    s.cpu_mips_shift = 0;
+    s.max_run_time = m_insn_limit;
+    s.cpu_mips_shift = m_mips_shift;
 
     m_qemu_ctx = qemu_init(&s);
 }

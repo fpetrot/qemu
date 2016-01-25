@@ -51,10 +51,14 @@ protected:
         CpuType::value cpu_type;
         int cpu_count;
         std::string cpu_model;
+	int insn_limit;
+	int mips_shift;
 
         DiscoveryInfo()
             : cpu_type(CpuType::NONE)
-            , cpu_count(0) {}
+            , cpu_count(0)
+	    , insn_limit(0)
+	    , mips_shift(0) {}
     } m_discovery;
     
     void add_cpu(CpuType::value, const std::string model);
