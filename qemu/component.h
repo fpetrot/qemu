@@ -140,7 +140,7 @@ public:
 
     SC_HAS_PROCESS(QemuComponent);
 
-    QemuComponent(std::string name, ComponentParameters &params)
+    QemuComponent(sc_core::sc_module_name name, ComponentParameters &params)
         : ComponentBase(name, params), m_lib(QemuInstance::get().get_lib()), m_qdev(NULL) 
     {
         SC_THREAD(irq_in_thread);

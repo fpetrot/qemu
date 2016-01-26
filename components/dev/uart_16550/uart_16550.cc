@@ -21,7 +21,7 @@
 
 #include <rabbits/logger.h>
 
-QemuUart16550::QemuUart16550(std::string name, ComponentParameters &params)
+QemuUart16550::QemuUart16550(sc_core::sc_module_name name, ComponentParameters &params)
     : QemuComponent(name, params)
 {
     PlatformDescription &descr = params.get_base_description();

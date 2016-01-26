@@ -84,7 +84,7 @@ protected:
 
 public:
     SC_HAS_PROCESS (QemuMaster);
-    QemuMaster(std::string name, ComponentParameters &params, LibScQemu &lib)
+    QemuMaster(sc_core::sc_module_name name, ComponentParameters &params, LibScQemu &lib)
         : Master(name, params)
         , m_lib(lib)
     {

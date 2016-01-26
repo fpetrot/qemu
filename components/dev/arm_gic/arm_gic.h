@@ -35,7 +35,7 @@ protected:
 
     void mem_map(ComponentParameters&);
 public:
-    QemuArmGic(std::string name, ComponentParameters &params);
+    QemuArmGic(sc_core::sc_module_name name, ComponentParameters &params);
     ~QemuArmGic();
 };
 

@@ -26,7 +26,7 @@
 
 class QemuCpuArm : public QemuCpu {
 public:
-    QemuCpuArm(std::string name, ComponentParameters &params);
+    QemuCpuArm(sc_core::sc_module_name name, ComponentParameters &params);
 };
 
 #endif

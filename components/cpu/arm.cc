@@ -25,7 +25,7 @@
 
 using std::string;
 
-QemuCpuArm::QemuCpuArm(std::string name, ComponentParameters &params)
+QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, ComponentParameters &params)
     : QemuCpu(name, params)
 {
     declare_irq_in("irq", SC_QEMU_ARM_IRQ_IRQ);

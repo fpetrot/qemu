@@ -27,7 +27,7 @@
 #include "arm_gic.h"
 #include "qemu/instance.h"
 
-QemuArmGic::QemuArmGic(std::string name, ComponentParameters &params)
+QemuArmGic::QemuArmGic(sc_core::sc_module_name name, ComponentParameters &params)
     : QemuComponent(name, params)
 {
     int num_irq = params["num-irq"].as<int>();

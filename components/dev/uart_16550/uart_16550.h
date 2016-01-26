@@ -32,7 +32,7 @@ protected:
 
 
 public:
-    QemuUart16550(std::string name, ComponentParameters &params);
+    QemuUart16550(sc_core::sc_module_name name, ComponentParameters &params);
     virtual ~QemuUart16550() {}
 };
 

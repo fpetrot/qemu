@@ -33,7 +33,7 @@ protected:
 public:
     SC_HAS_PROCESS(QemuCpu);
 
-    QemuCpu(std::string name, ComponentParameters &params)
+    QemuCpu(sc_core::sc_module_name name, ComponentParameters &params)
         : QemuComponent(name, params)
     {
         QemuInstance &inst = QemuInstance::get();
