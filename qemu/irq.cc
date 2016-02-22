@@ -43,9 +43,9 @@ sc_signal<bool>* QemuIrqIn::connect(IrqOut &out)
             return IrqIn::connect(out);
         }
 
-	DBG_STREAM("sc-qemu internal IRQ connection " 
-		   << qout->m_comp->name() << ":" << qout->name() << " -> "
-		   << m_comp->name() << ":" << name() << "\n");
+        DBG_STREAM("sc-qemu internal IRQ connection "
+                   << qout->m_comp->name() << ":" << qout->name() << " -> "
+                   << m_comp->name() << ":" << name() << "\n");
 
         lib->qdev_irq_connect(qout->m_comp->m_qdev, qout->m_qemu_idx,  m_comp->m_qdev, m_qemu_idx);
 
@@ -66,8 +66,6 @@ sc_core::sc_in<bool>& QemuIrqIn::get_port()
 }
 
 
-
-
 sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqIn &in)
 {
     QemuIrqIn *qin = dynamic_cast<QemuIrqIn*>(&in);
@@ -81,9 +79,9 @@ sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqIn &in)
             return IrqOut::connect(in);
         }
 
-	DBG_STREAM("sc-qemu internal IRQ connection " 
-		   << m_comp->name() << ":" << name() << " -> "
-		   << qin->m_comp->name() << ":" << qin->name() << "\n");
+        DBG_STREAM("sc-qemu internal IRQ connection "
+                   << m_comp->name() << ":" << name() << " -> "
+                   << qin->m_comp->name() << ":" << qin->name() << "\n");
 
         lib->qdev_irq_connect(m_comp->m_qdev, m_qemu_idx,  qin->m_comp->m_qdev, qin->m_qemu_idx);
 
