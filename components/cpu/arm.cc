@@ -30,8 +30,10 @@ QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, ComponentParameters &params
 {
     declare_irq_in("irq", SC_QEMU_ARM_IRQ_IRQ);
     declare_irq_in("fiq", SC_QEMU_ARM_IRQ_FIQ);
+    const string & model = params["model"].as<string>();
 
-    if (params["model"].as<string>() == "cortex-a15") {
+
+    if ((model == "cortex-a15") || (model == "cortex-a7")) {
         /* Timers irq */
         declare_irq_out("timer-phys", 0);
         declare_irq_out("timer-virt", 1);
