@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-#include <sc_qemu.h>
+#include <sc-qemu/sc_qemu.h>
 
 #include <rabbits/platform/description.h>
 #include <rabbits/logger.h>

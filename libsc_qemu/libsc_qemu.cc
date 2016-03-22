@@ -25,7 +25,7 @@
 #include <rabbits/rabbits_exception.h>
 
 #include <cassert>
-#include <sc_qemu.h>
+#include <sc-qemu/sc_qemu.h>
 
 
 LibScQemu::LibScQemu()
