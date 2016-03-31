@@ -2,8 +2,7 @@ component:
   name: qemu-arm-gic
   type: arm-gic
   class: QemuArmGic
-  include:
-    - components/dev/arm_gic/arm_gic.h
+  include: arm_gic.h
   description: ARM GIC interrupt controller provided by QEMU.
   parameters:
     num-irq:

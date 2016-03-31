@@ -3,8 +3,7 @@ component:
   type: cpu-arm
   class: QemuCpuArm
   discover: QemuInstance::get().discover(name, cp)
-  include:
-    - components/cpu/arm.h
+  include: cpu/arm.h
   description: ARM CPU simulation provided by QEMU.
   parameters:
     model:
