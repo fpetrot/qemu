@@ -1,1 +1,1 @@
-rabbits_add_sources(arm.cc)
+add_subdirectory(arm)

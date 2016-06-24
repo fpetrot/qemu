@@ -25,9 +25,9 @@ qemu_sp804::qemu_sp804(sc_module_name n, LibScQemu *lib)
     m_dev = m_lib->qdev_create_sp804();
 }
 
-void qemu_sp804::map_mmio(uint32_t addr)
+void qemu_sp804::do_mmio_map(const AddressRange &range)
 {
-    m_lib->qdev_mmio_map(m_dev, 0, addr);
+    m_lib->qdev_mmio_map(m_dev, 0, range.begin());
 }
 
 void qemu_sp804::connect_irq(int idx)

@@ -23,45 +23,14 @@
 #include <vector>
 #include <cassert>
 
-#include "libsc_qemu/libsc_qemu.h"
+#include "component.h"
 
-#include <rabbits/component/master.h>
-#include <rabbits/logger.h>
+#include <rabbits/component/port/tlm_initiator.h>
 
-class QemuMaster: public Master, public qemu_io_callbacks
+template <unsigned int BUSWIDTH = 32>
+class QemuMaster : public QemuComponent, public tlm::tlm_bw_transport_if<>
 {
-protected:
-    LibScQemu &m_lib;
-
-    virtual uint32_t qemu_io_read(uint32_t addr, uint32_t size) {
-        uint32_t buf;
-
-        assert(size <= sizeof(buf));
-        bus_read(addr, (uint8_t*)&buf, size);
-
-        return buf;
-    }
-
-    virtual void qemu_io_write(uint32_t addr, uint32_t val, uint32_t size) {
-        assert(size <= sizeof(val));
-        bus_write(addr, (uint8_t*)&val, size);
-    }
-
-    void mainloop_thread() {
-        bool qemu_want_quit = false;
-        int64_t elapsed;
-
-        for(;;) {
-            qemu_want_quit = m_lib.cpus_loop(&elapsed);
-
-            if(qemu_want_quit) {
-                sc_core::sc_stop();
-            }
-
-            wait(elapsed, sc_core::SC_NS);
-        }
-    }
-
+#if 0
     void add_map(uint32_t base_address, uint32_t size) {
         m_lib.map_io(base_address, size);
     }
@@ -81,17 +50,34 @@ protected:
             add_map(start, size);
         }
     }
+#endif
 
 public:
-    SC_HAS_PROCESS (QemuMaster);
-    QemuMaster(sc_core::sc_module_name name, ComponentParameters &params, LibScQemu &lib)
-        : Master(name, params)
-        , m_lib(lib)
-    {
-        SC_THREAD(mainloop_thread);
-    }
+    TlmInitiatorPort<BUSWIDTH> p_bus;
+
+    QemuMaster(sc_core::sc_module_name name, ComponentParameters &params)
+        : QemuComponent(name, params)
+	, p_bus("bus", *this) {}
 
     virtual ~QemuMaster() {}
+
+
+    /* tlm::tlm_bw_transport_if */
+    virtual tlm::tlm_sync_enum nb_transport_bw(tlm::tlm_generic_payload& trans,
+                                               tlm::tlm_phase& phase,
+                                               sc_core::sc_time& t)
+    {
+        ERR_PRINTF("Non-blocking transport not implemented\n");
+        abort();
+        return tlm::TLM_COMPLETED;
+    }
+
+    virtual void invalidate_direct_mem_ptr(sc_dt::uint64 start_range,
+                                           sc_dt::uint64 end_range)
+    {
+        ERR_PRINTF("DMI memory invalidation not implemented\n");
+        abort();
+    }
 };
 
 #endif

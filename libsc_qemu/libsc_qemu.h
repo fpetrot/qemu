@@ -22,7 +22,6 @@
 
 #include <string>
 
-/* XXX rabbits.h ? */
 #include <inttypes.h>
 
 struct qemu_import;

@@ -23,9 +23,20 @@
 #include <string>
 
 #include "qemu/cpu.h"
+#include "qemu/port/in.h"
 
-class QemuCpuArm : public QemuCpu {
+class QemuCpuArm : public QemuCpu<32> {
+protected:
+    using QemuCpu<32>::m_lib;
+    using QemuCpu<32>::m_qdev;
+
 public:
+    using QemuCpu<32>::p_bus;
+
+public:
+    QemuInPort p_in_irq;
+    QemuInPort p_in_fiq;
+
     QemuCpuArm(sc_core::sc_module_name name, ComponentParameters &params);
 };
 

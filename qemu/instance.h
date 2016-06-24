@@ -22,14 +22,14 @@
 
 #include <vector>
 #include <string>
+#include <cassert>
 
 #include <rabbits/component/parameters.h>
 
 #include "libsc_qemu/libsc_qemu.h"
-#include "master.h"
 
 class QemuInstance {
-protected:
+public:
     struct CpuType {
         enum value {
             NONE = 0,
@@ -40,27 +40,30 @@ protected:
         static const std::string LIB[CPU_TYPE_COUNT];
     };
 
+protected:
     static QemuInstance *m_inst;
 
-    
     LibScQemu  m_lib;
-    QemuMaster m_master;
     int m_next_cpuid;
+
+    /* Contains regions mapped by QEMU devices.
+     * These regions must be ignored when passing the address map to QEMU. */
+    std::vector<AddressRange> m_self_mapping;
 
     struct DiscoveryInfo {
         CpuType::value cpu_type;
         int cpu_count;
         std::string cpu_model;
-	int insn_limit;
-	int mips_shift;
+        int insn_limit;
+        int mips_shift;
 
         DiscoveryInfo()
             : cpu_type(CpuType::NONE)
             , cpu_count(0)
-	    , insn_limit(0)
-	    , mips_shift(0) {}
+            , insn_limit(0)
+            , mips_shift(0) {}
     } m_discovery;
-    
+
     void add_cpu(CpuType::value, const std::string model);
 
     void lib_init();
@@ -77,11 +80,9 @@ public:
         return m_lib;
     }
 
-    QemuMaster &get_master() {
-        return m_master;
-    }
-
-    void discover(const std::string &name, ComponentParameters &params);
+    void cpu_discover(CpuType::value architecture,
+                      const std::string &model,
+                      ComponentParameters &params);
 
     int get_next_cpuid() {
         assert(m_next_cpuid < m_discovery.cpu_count);
@@ -90,6 +91,19 @@ public:
 
     int get_num_cpu() {
         return m_discovery.cpu_count;
+    }
+
+    void self_mapping_add(const AddressRange &r) {
+        m_self_mapping.push_back(r);
+    }
+
+    bool self_mapping_contains(const AddressRange &r) {
+        for (AddressRange r2 : m_self_mapping) {
+            if (r == r2) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static QemuInstance& get() {

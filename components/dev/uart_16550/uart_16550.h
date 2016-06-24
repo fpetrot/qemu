@@ -20,18 +20,21 @@
 #ifndef _QEMU_WRAPPER_DEV_UART_16550_H
 #define _QEMU_WRAPPER_DEV_UART_16550_H
 
-#include "qemu/component.h"
+#include "qemu/slave.h"
+#include "qemu/port/out.h"
 
-class QemuUart16550 : public QemuComponent
+class QemuUart16550 : public QemuSlave<>
 {
 protected:
-    uint32_t m_base_addr;
-    int m_baudbase;
-    int m_irq_idx;
     int m_regshift;
+    int m_baudbase;
+    sc_qemu_qdev *m_qdev;
 
+    void do_mmio_map(const AddressRange &range);
 
 public:
+    QemuOutPort p_irq;
+
     QemuUart16550(sc_core::sc_module_name name, ComponentParameters &params);
     virtual ~QemuUart16550() {}
 };

@@ -84,7 +84,7 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
 
     qemu_init = (sc_qemu_init_fn) m_lib->get_symbol(SC_QEMU_INIT_SYM_STR);
 
-    assert(m_io_cb != NULL);
+    //assert(m_io_cb != NULL);
 
     s.sc_import.write = qemu_sc_write;
     s.sc_import.read = qemu_sc_read;

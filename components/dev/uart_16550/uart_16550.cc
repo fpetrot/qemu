@@ -22,25 +22,17 @@
 #include <rabbits/logger.h>
 
 QemuUart16550::QemuUart16550(sc_core::sc_module_name name, ComponentParameters &params)
-    : QemuComponent(name, params)
+    : QemuSlave(name, params)
+    , m_regshift(params["regshift"].as<int>())
+    , m_baudbase(params["baudbase"].as<int>())
+    , m_qdev(m_lib.qdev_create_uart_16550(m_regshift, m_baudbase))
+    , p_irq("irq", m_lib, m_qdev, 0)
 {
-    PlatformDescription &descr = params.get_base_description();
-    AddressRange map;
-
-    m_regshift = params["regshift"].as<int>();
-    m_baudbase = params["baudbase"].as<int>();
-    
-    try {
-        map = descr["bus-mapping"].as<AddressRange>();
-    } catch(PlatformDescription::InvalidConversionException e) {
-        WRN_STREAM("Missing or invalid `bus-mapping` attribute for component `"
-                   << name << "`\n");
-        return;
-    }
-
-    m_qdev = m_lib.qdev_create_uart_16550(m_regshift, m_baudbase);
-
-    m_lib.qdev_mmio_map(m_qdev, 0, map.begin());
-
-    declare_irq_out("irq", 0);
+    QemuSlave::m_qdev = m_qdev;
 }
+
+void QemuUart16550::do_mmio_map(const AddressRange &range)
+{
+    m_lib.qdev_mmio_map(m_qdev, 0, range.begin());
+}
+

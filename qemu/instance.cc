@@ -18,6 +18,7 @@
  */
 
 #include "instance.h"
+#include <rabbits/logger.h>
 
 using std::string;
 
@@ -29,8 +30,7 @@ const string QemuInstance::CpuType::LIB[] = {
 };
 
 QemuInstance::QemuInstance()
-    : m_master("qemu-master", ComponentParameters::EMPTY, m_lib)
-    , m_next_cpuid(0)
+    : m_next_cpuid(0)
 {
 }
 
@@ -40,24 +40,21 @@ void QemuInstance::add_cpu(CpuType::value type, const string model)
         m_discovery.cpu_type = type;
         m_discovery.cpu_model = model;
     } else if ((m_discovery.cpu_type != type) || (m_discovery.cpu_model != model)) {
-        /* XXX non smp systems not supported */
+        ERR_STREAM("Non-SMP systems not supported.\n");
+        abort();
     }
 
     m_discovery.cpu_count++;
 }
 
-void QemuInstance::discover(const std::string &name, ComponentParameters &params)
+void QemuInstance::cpu_discover(CpuType::value architecture,
+                                const string &model,
+                                ComponentParameters &params)
 {
-    PlatformDescription &descr = params.get_base_description();
-    const string cpu_type = descr["type"].as<string>();
-    const string model = params["model"].as<string>();
-
     int insn_limit = params["insn-limit"].as<int>();
     int mips_shift = params["mips-shift"].as<int>();
 
-    if (cpu_type == "cpu-arm") {
-        add_cpu(CpuType::ARM, model);
-    }
+    add_cpu(architecture, model);
 
     if (insn_limit > 0) {
         DBG_STREAM("Setting instruction execution limit to " << insn_limit << "\n");
@@ -73,7 +70,7 @@ void QemuInstance::discover(const std::string &name, ComponentParameters &params
 void QemuInstance::lib_init()
 {
     if (m_discovery.cpu_type == CpuType::NONE) {
-        /* XXX no cpu in description */
+        ERR_STREAM("No CPU in platform description. Unable to use QEMU\n");
         abort();
     }
 
@@ -83,7 +80,7 @@ void QemuInstance::lib_init()
                << m_discovery.cpu_count << " " << m_discovery.cpu_model
                << " cpu(s)\n");
 
-    m_lib.register_io_callback(m_master);
+    //m_lib.register_io_callback(m_master);
     m_lib.set_insn_limit(m_discovery.insn_limit);
     m_lib.set_mips_shift(m_discovery.mips_shift);
     m_lib.init(lib_name, m_discovery.cpu_count, m_discovery.cpu_model);

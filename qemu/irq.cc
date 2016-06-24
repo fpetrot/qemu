@@ -32,6 +32,7 @@ sc_signal<bool>* QemuIrqIn::connect(IrqIn &in)
 
 sc_signal<bool>* QemuIrqIn::connect(IrqOut &out)
 {
+#if 0
     QemuIrqOut *qout = dynamic_cast<QemuIrqOut*>(&out);
 
     if (qout) {
@@ -58,16 +59,24 @@ sc_signal<bool>* QemuIrqIn::connect(IrqOut &out)
         /* Classical SystemC connection */
         return IrqIn::connect(out);
     }
+#else
+    return NULL;
+#endif
 }
 
 sc_core::sc_in<bool>& QemuIrqIn::get_port()
 {
+#if 0
     return m_comp->create_irq_in_port(m_qemu_idx);
+#else
+    return * new sc_in<bool>;
+#endif
 }
 
 
 sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqIn &in)
 {
+#if 0
     QemuIrqIn *qin = dynamic_cast<QemuIrqIn*>(&in);
 
     if (qin) {
@@ -94,6 +103,9 @@ sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqIn &in)
         /* Classical SystemC connection */
         return IrqOut::connect(in);
     }
+#else
+    return NULL;
+#endif
 }
 
 sc_core::sc_signal<bool>* QemuIrqOut::connect(IrqOut &out)

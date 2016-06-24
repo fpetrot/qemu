@@ -22,13 +22,15 @@
 
 #include "qemu_device.h"
 
-class qemu_sp804 : public qemu_device
+class qemu_sp804 : public QemuSlave<>
 {
+protected:
+    void do_mmio_map(const AddressRange &range);
+
 public:
     qemu_sp804(sc_core::sc_module_name n, LibScQemu *lib);
     virtual ~qemu_sp804() {}
 
-    void map_mmio(uint32_t addr);
     void connect_irq(int idx);
 
 };

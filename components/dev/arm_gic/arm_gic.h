@@ -26,14 +26,22 @@
 #ifndef _QEMU_WRAPPER_DEV_ARM_GIC_H
 #define _QEMU_WRAPPER_DEV_ARM_GIC_H
 
-#include "qemu/component.h"
+#include <vector>
 
-class QemuArmGic : public QemuComponent
+#include "qemu/slave.h"
+#include "qemu/port/in.h"
+#include "qemu/port/out.h"
+
+
+class QemuArmGic : public QemuSlave<>
 {
-protected:
-    int m_num_irq;
+public:
+    std::vector< QemuInPort* > p_irqs_in;
+    std::vector< QemuOutPort* > p_irqs_to_cpus;
 
-    void mem_map(ComponentParameters&);
+protected:
+    void do_mmio_map(const AddressRange &range);
+
 public:
     QemuArmGic(sc_core::sc_module_name name, ComponentParameters &params);
     ~QemuArmGic();

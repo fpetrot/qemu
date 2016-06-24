@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <string>
 #include <sc-qemu/sc_qemu.h>
 #include <rabbits/logger.h>
 
@@ -26,21 +27,10 @@
 using std::string;
 
 QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, ComponentParameters &params)
-    : QemuCpu(name, params)
+    : QemuCpu<32>(name, params)
+    , p_in_irq("irq", m_lib, m_qdev, SC_QEMU_ARM_IRQ_IRQ)
+    , p_in_fiq("fiq", m_lib, m_qdev, SC_QEMU_ARM_IRQ_FIQ)
 {
-    declare_irq_in("irq", SC_QEMU_ARM_IRQ_IRQ);
-    declare_irq_in("fiq", SC_QEMU_ARM_IRQ_FIQ);
-    const string & model = params["model"].as<string>();
-
-
-    if ((model == "cortex-a15") || (model == "cortex-a7")) {
-        /* Timers irq */
-        declare_irq_out("timer-phys", 0);
-        declare_irq_out("timer-virt", 1);
-        declare_irq_out("timer-hyp", 2);
-        declare_irq_out("timer-sec", 3);
-    }
-
     string gdb_port = params["gdb-server"].as<string>();
 
     if (gdb_port != "") {

@@ -21,29 +21,125 @@
 #define _QEMU_CPU_H
 
 #include <map>
-#include <systemc.h>
+#include <systemc>
 
-#include "libsc_qemu/libsc_qemu.h"
-#include "component.h"
+#include "master.h"
 
-class QemuCpu : public QemuComponent {
+template <unsigned int BUSWIDTH = 32>
+class QemuCpu : public QemuMaster<BUSWIDTH>, public qemu_io_callbacks {
+protected:
+    using QemuMaster<BUSWIDTH>::m_lib;
+    using QemuMaster<BUSWIDTH>::m_qdev;
+
+public:
+    using QemuMaster<BUSWIDTH>::p_bus;
+
 protected:
     int m_cpuid;
+
+    void mainloop_thread() {
+        bool qemu_want_quit = false;
+        int64_t elapsed;
+
+        for(;;) {
+            qemu_want_quit = m_lib.cpus_loop(&elapsed);
+
+            if(qemu_want_quit) {
+                sc_core::sc_stop();
+            }
+
+            sc_core::wait(elapsed, sc_core::SC_NS);
+        }
+    }
+
+    void map_as_io(AddressRange region) {
+        DBG_STREAM("Mapping region " << region << " in QEMU as I/O\n");
+        m_lib.map_io(region.begin(), region.size());
+    }
+
+    void map_as_dmi(AddressRange region, void *ptr) {
+        DBG_STREAM("Mapping region " << region << " in QEMU as DMI\n");
+        m_lib.map_dmi(region.begin(), region.size(), ptr);
+    }
+
+
+    void declare_dmi_region(AddressRange region, const DmiInfo &info)
+    {
+        /* Validate the DMI info before giving it to QEMU. Fallback to IO
+         * region if not enough requirements are met. */
+        if (!info.is_read_write_allowed()) {
+            map_as_io(region);
+        } else if (info.range != region) {
+            /* We should sub-cut the region in this case */
+            map_as_io(region);
+        } else {
+            map_as_dmi(region, info.ptr);
+        }
+    }
+
+    void declare_memory_region(AddressRange region)
+    {
+        DmiInfo info;
+
+        if (p_bus.dmi_probe(region, info)) {
+            declare_dmi_region(region, info);
+        } else {
+            map_as_io(region);
+        }
+    }
+
+    void declare_memory_regions() {
+        const std::vector<AddressRange> &mem_map = p_bus.get_memory_mapping();
+
+        for (AddressRange r : mem_map) {
+            if (QemuInstance::get().self_mapping_contains(r)) {
+                continue;
+            }
+
+            declare_memory_region(r);
+        }
+    }
 
 public:
     SC_HAS_PROCESS(QemuCpu);
 
     QemuCpu(sc_core::sc_module_name name, ComponentParameters &params)
-        : QemuComponent(name, params)
+        : QemuMaster<BUSWIDTH>(name, params)
     {
         QemuInstance &inst = QemuInstance::get();
 
         m_cpuid = inst.get_next_cpuid();
         m_qdev = m_lib.cpu_get_qdev(m_cpuid);
 
-        declare_master("qemu-master", inst.get_master());
+        if (!m_cpuid) {
+            SC_THREAD(mainloop_thread);
+            m_lib.register_io_callback(*this);
+        }
     }
 
     virtual ~QemuCpu() {}
+
+    uint32_t qemu_io_read(uint32_t addr, uint32_t size) {
+        uint32_t buf;
+
+        assert(size <= sizeof(buf));
+        p_bus.bus_read(addr, (uint8_t*)&buf, size);
+
+        return buf;
+    }
+
+    void qemu_io_write(uint32_t addr, uint32_t val, uint32_t size) {
+        assert(size <= sizeof(val));
+        p_bus.bus_write(addr, (uint8_t*)&val, size);
+    }
+
+    virtual void end_of_elaboration() {
+        QemuMaster<BUSWIDTH>::end_of_elaboration();
+
+        if (!m_cpuid) {
+            declare_memory_regions();
+        }
+    }
+
 };
 #endif
