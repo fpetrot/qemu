@@ -57,24 +57,54 @@ protected:
         m_lib.map_io(region.begin(), region.size());
     }
 
-    void map_as_dmi(AddressRange region, void *ptr) {
-        DBG_STREAM("Mapping region " << region << " in QEMU as DMI\n");
-        m_lib.map_dmi(region.begin(), region.size(), ptr);
+    void map_as_dmi(AddressRange region, void *ptr, bool readonly) {
+        DBG_STREAM("Mapping region " << region << " in QEMU as DMI (ro:" << readonly << ")\n");
+        m_lib.map_dmi(region.begin(), region.size(), ptr, readonly);
     }
 
+    bool subcut_dmi_region(AddressRange region, const DmiInfo &info)
+    {
+        /* Ensure dmi region is included into region. Otherwise, the DMI info
+         * are buggy and we should report it. */
+        if (info.range.begin() < region.begin() || info.range.end() > region.end()) {
+            ERR_STREAM("Buggy DMI info for address range " << region << ". Falling back to I/O\n");
+            map_as_io(region);
+            return false;
+        }
+
+        AddressRange before_dmi(region.begin(), info.range.begin() - region.begin());
+        AddressRange after_dmi(info.range.end() + 1, region.size() - before_dmi.size() - info.range.size());
+
+        if (before_dmi.size()) {
+            map_as_io(before_dmi);
+        }
+
+        if (after_dmi.size()) {
+            map_as_io(after_dmi);
+        }
+
+        return true;
+    }
 
     void declare_dmi_region(AddressRange region, const DmiInfo &info)
     {
+        bool readonly = !info.write_allowed;
+
         /* Validate the DMI info before giving it to QEMU. Fallback to IO
          * region if not enough requirements are met. */
-        if (!info.is_read_write_allowed()) {
+        if (!info.read_allowed) {
             map_as_io(region);
-        } else if (info.range != region) {
-            /* We should sub-cut the region in this case */
-            map_as_io(region);
-        } else {
-            map_as_dmi(region, info.ptr);
+            return;
         }
+
+        if (info.range != region) {
+            /* We should sub-cut the region in this case */
+            if (!subcut_dmi_region(region, info)) {
+                return;
+            }
+        }
+
+        map_as_dmi(info.range, info.ptr, readonly);
     }
 
     void declare_memory_region(AddressRange region)
