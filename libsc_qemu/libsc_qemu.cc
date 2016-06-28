@@ -105,10 +105,10 @@ void LibScQemu::map_io(uint32_t base, uint32_t size)
     m_qemu_import->map_io(m_qemu_ctx, base, size);
 }
 
-void LibScQemu::map_dmi(uint32_t base, uint32_t size, void *data)
+void LibScQemu::map_dmi(uint32_t base, uint32_t size, void *data, bool readonly)
 {
     assert(m_qemu_import);
-    m_qemu_import->map_dmi(m_qemu_ctx, base, size, data);
+    m_qemu_import->map_dmi(m_qemu_ctx, base, size, data, readonly);
 }
 
 bool LibScQemu::cpus_loop(int64_t *elapsed)

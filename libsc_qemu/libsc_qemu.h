@@ -71,7 +71,7 @@ public:
     bool is_inited() const { return m_lib != NULL; }
 
     void map_io(uint32_t base, uint32_t size);
-    void map_dmi(uint32_t base, uint32_t size, void *data);
+    void map_dmi(uint32_t base, uint32_t size, void *data, bool readonly = false);
 
     bool cpus_loop(int64_t* elapsed);
 
