@@ -32,62 +32,13 @@ protected:
     LibScQemu &m_lib;
     sc_qemu_qdev *m_qdev;
 
-#if 0
-    void irq_in_thread() 
-    {
-        std::map<int, sc_core::sc_in<bool>* >::iterator it;
-
-        if (!m_irq_in_ports.size()) {
-            return;
-        }
-
-        for (;;) {
-            wait(m_irq_in_ports_events);
-
-            for (it = m_irq_in_ports.begin(); it != m_irq_in_ports.end(); it++) {
-                int irq_idx = it->first;
-                sc_core::sc_in<bool> * irq_line = it->second;
-                
-                if (irq_line->posedge()) {
-                    m_lib.qdev_irq_update(m_qdev, irq_idx, 1);
-                } else if (irq_line->negedge()) {
-                    m_lib.qdev_irq_update(m_qdev, irq_idx, 0);
-                }
-            }
-        }
-    }
-
-    sc_core::sc_in<bool> & create_irq_in_port(int idx)
-    {
-        if (m_irq_in_ports.find(idx) == m_irq_in_ports.end()) {
-            m_irq_in_ports[idx] = new sc_core::sc_in<bool>;
-        }
-
-        return *(m_irq_in_ports[idx]);
-    }
-
-    virtual void end_of_elaboration() {
-        ComponentBase::end_of_elaboration();
-
-        std::map<int, sc_core::sc_in<bool>* >::iterator it;
-
-        for (it = m_irq_in_ports.begin(); it != m_irq_in_ports.end(); it++) {
-            sc_core::sc_in<bool> * irq_line = it->second;
-
-            m_irq_in_ports_events |= irq_line->default_event();
-        }
-    }
-#endif
-
 public:
 
     SC_HAS_PROCESS(QemuComponent);
 
     QemuComponent(sc_core::sc_module_name name, ComponentParameters &params)
         : Component(name, params), m_lib(QemuInstance::get().get_lib()), m_qdev(NULL) 
-    {
-        //SC_THREAD(irq_in_thread);
-    }
+    {}
 
     virtual ~QemuComponent() {}
 };

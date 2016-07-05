@@ -30,28 +30,6 @@
 template <unsigned int BUSWIDTH = 32>
 class QemuMaster : public QemuComponent, public tlm::tlm_bw_transport_if<>
 {
-#if 0
-    void add_map(uint32_t base_address, uint32_t size) {
-        m_lib.map_io(base_address, size);
-    }
-
-    void add_map_dmi(uint32_t base_address, uint32_t size, void *data) {
-        m_lib.map_dmi(base_address, size, data);
-    }
-
-    virtual void dmi_hint_cb(uint64_t start, uint64_t size, void *data,
-                             sc_core::sc_time read_latency, sc_core::sc_time write_latency)
-    {
-        if (data != NULL) {
-            DBG_PRINTF("DMI mapping from %" PRIx64 " to %" PRIx64 "\n", start, start+size);
-            add_map_dmi(start, size, data);
-        } else {
-            DBG_PRINTF("I/O mapping from %" PRIx64 " to %" PRIx64 "\n", start, start+size);
-            add_map(start, size);
-        }
-    }
-#endif
-
 public:
     TlmInitiatorPort<BUSWIDTH> p_bus;
 
