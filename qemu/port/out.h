@@ -41,7 +41,7 @@ public:
 
     virtual void selected_strategy(ConnectionStrategyBase &cs) {
         if (&cs != &m_cs) {
-            ERR_STREAM("QEMU to SystemC gpio connection is not implemented\n");
+            LOG(APP, ERR) << "QEMU to SystemC gpio connection is not implemented\n";
         } else {
             /* Internal QEMU connection. Stub the useless sc_port to make it
              * connected */

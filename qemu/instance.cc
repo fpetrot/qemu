@@ -40,7 +40,7 @@ void QemuInstance::add_cpu(CpuType::value type, const string model)
         m_discovery.cpu_type = type;
         m_discovery.cpu_model = model;
     } else if ((m_discovery.cpu_type != type) || (m_discovery.cpu_model != model)) {
-        ERR_STREAM("Non-SMP systems not supported.\n");
+        LOG(APP, ERR) << "Non-SMP systems not supported.\n";
         abort();
     }
 
@@ -57,12 +57,12 @@ void QemuInstance::cpu_discover(CpuType::value architecture,
     add_cpu(architecture, model);
 
     if (insn_limit > 0) {
-        DBG_STREAM("Setting instruction execution limit to " << insn_limit << "\n");
+        LOG(APP, DBG) << "Setting instruction execution limit to " << insn_limit << "\n";
         m_discovery.insn_limit = insn_limit;
     }
 
     if (mips_shift > 0) {
-        DBG_STREAM("Setting MIPS shift to " << mips_shift << "\n");
+        LOG(APP, DBG) << "Setting MIPS shift to " << mips_shift << "\n";
         m_discovery.mips_shift = mips_shift;
     }
 }
@@ -70,15 +70,15 @@ void QemuInstance::cpu_discover(CpuType::value architecture,
 void QemuInstance::lib_init()
 {
     if (m_discovery.cpu_type == CpuType::NONE) {
-        ERR_STREAM("No CPU in platform description. Unable to use QEMU\n");
+        LOG(APP, ERR) << "No CPU in platform description. Unable to use QEMU\n";
         abort();
     }
 
     const string lib_name = CpuType::LIB[m_discovery.cpu_type];
 
-    DBG_STREAM("Initializing sc-qemu with "
-               << m_discovery.cpu_count << " " << m_discovery.cpu_model
-               << " cpu(s)\n");
+    LOG(APP, DBG) << "Initializing sc-qemu with "
+        << m_discovery.cpu_count << " " << m_discovery.cpu_model
+        << " cpu(s)\n";
 
     //m_lib.register_io_callback(m_master);
     m_lib.set_insn_limit(m_discovery.insn_limit);

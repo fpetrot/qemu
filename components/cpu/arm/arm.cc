@@ -34,7 +34,7 @@ QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, ComponentParameters &params
     string gdb_port = params["gdb-server"].as<string>();
 
     if (gdb_port != "") {
-        INF_STREAM("Starting gdb server on port " << gdb_port << "\n");
+        LOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
         m_lib.start_gdb_server("tcp::" + gdb_port);
     }
 }

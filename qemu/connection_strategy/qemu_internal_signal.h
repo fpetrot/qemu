@@ -56,7 +56,7 @@ public:
         }
 
         if (cs.m_dir == m_dir) {
-            WRN_STREAM("Trying to connect two QEMU signals that have same direction (at " << d.origin() << ")\n");
+            LOG(APP, WRN) << "Trying to connect two QEMU signals that have same direction (at " << d.origin() << ")\n";
             return BindingResult::BINDING_ERROR;
         }
 
@@ -68,7 +68,7 @@ public:
             out = &m_sig;
         }
 
-        DBG_STREAM("Internal QEMU gpio connection\n");
+        LOG(APP, DBG) << "Internal QEMU gpio connection\n";
         m_qemu_inst->qdev_irq_connect(out->first, out->second, in->first, in->second);
 
         return BindingResult::BINDING_OK;
@@ -77,7 +77,7 @@ public:
     virtual BindingResult bind_hierarchical(QemuInternalSignalCS &parent_cs)
     {
         /* Not implemented */
-        ERR_STREAM("QEMU signals hierarchical binding not implemented\n");
+        LOG(APP, ERR) << "QEMU signals hierarchical binding not implemented\n";
         return BindingResult::BINDING_ERROR;
     }
 };

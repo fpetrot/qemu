@@ -53,12 +53,12 @@ protected:
     }
 
     void map_as_io(AddressRange region) {
-        DBG_STREAM("Mapping region " << region << " in QEMU as I/O\n");
+        LOG(APP, DBG) << "Mapping region " << region << " in QEMU as I/O\n";
         m_lib.map_io(region.begin(), region.size());
     }
 
     void map_as_dmi(AddressRange region, void *ptr, bool readonly) {
-        DBG_STREAM("Mapping region " << region << " in QEMU as DMI (ro:" << readonly << ")\n");
+        LOG(APP, DBG) << "Mapping region " << region << " in QEMU as DMI (ro:" << readonly << ")\n";
         m_lib.map_dmi(region.begin(), region.size(), ptr, readonly);
     }
 
@@ -67,7 +67,7 @@ protected:
         /* Ensure dmi region is included into region. Otherwise, the DMI info
          * are buggy and we should report it. */
         if (info.range.begin() < region.begin() || info.range.end() > region.end()) {
-            ERR_STREAM("Buggy DMI info for address range " << region << ". Falling back to I/O\n");
+            LOG(APP, ERR) << "Buggy DMI info for address range " << region << ". Falling back to I/O\n";
             map_as_io(region);
             return false;
         }

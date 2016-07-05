@@ -51,14 +51,14 @@ public:
                                                tlm::tlm_phase& phase,
                                                sc_core::sc_time& t)
     {
-        ERR_PRINTF("Non-blocking transport not implemented\n");
+        LOG(APP, ERR) << "Non-blocking transport not implemented\n";
         abort();
         return tlm::TLM_COMPLETED;
     }
 
     virtual void b_transport(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay)
     {
-        ERR_PRINTF("SystemC to QEMU memory request not implemented\n");
+        LOG(APP, ERR) << "SystemC to QEMU memory request not implemented\n";
         trans.set_response_status(tlm::TLM_GENERIC_ERROR_RESPONSE);
     }
 
