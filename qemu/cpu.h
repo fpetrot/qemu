@@ -23,6 +23,9 @@
 #include <map>
 #include <systemc>
 
+#include <rabbits/arith.h>
+#include <rabbits/config/manager.h>
+
 #include "master.h"
 
 template <unsigned int BUSWIDTH = 32>
@@ -118,8 +121,17 @@ protected:
         }
     }
 
+    void map_non_mapped(const std::vector<AddressRange> &mem_map) {
+        std::vector<AddressRange> neg_mem_map;
+        Arith::neg_memmap32(mem_map, neg_mem_map);
+        for (AddressRange r : neg_mem_map) {
+            map_as_io(r);
+        }
+    }
+
     void declare_memory_regions() {
         const std::vector<AddressRange> &mem_map = p_bus.get_memory_mapping();
+
 
         for (AddressRange r : mem_map) {
             if (QemuInstance::get().self_mapping_contains(r)) {
@@ -127,6 +139,12 @@ protected:
             }
 
             declare_memory_region(r);
+        }
+
+        ConfigManager & config = ConfigManager::get_manager();
+
+        if (config.get_global_params()["report-non-mapped-access"].as<bool>()) {
+            map_non_mapped(mem_map);
         }
     }
 
