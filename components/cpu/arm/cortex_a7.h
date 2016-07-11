@@ -31,14 +31,14 @@ public:
     QemuOutPort p_irq_timer_hyp;
     QemuOutPort p_irq_timer_sec;
 
-    QemuCpuArmCortexA7(sc_core::sc_module_name name, ComponentParameters &params)
+    QemuCpuArmCortexA7(sc_core::sc_module_name name, Parameters &params)
         : QemuCpuArm(name, params)
         , p_irq_timer_phys("irq-timer-phys", m_lib, m_qdev, 0)
         , p_irq_timer_virt("irq-timer-virt", m_lib, m_qdev, 1)
         , p_irq_timer_hyp("irq-timer-hyp", m_lib, m_qdev, 2)
         , p_irq_timer_sec("irq-timer-sec", m_lib, m_qdev, 3) {}
 
-    static void discover(const std::string &name, ComponentParameters &params)
+    static void discover(const std::string &name, Parameters &params)
     {
         QemuInstance::get().cpu_discover(QemuInstance::CpuType::ARM,
                                          "cortex-a7", params);

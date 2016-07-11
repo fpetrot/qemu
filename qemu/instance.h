@@ -24,7 +24,7 @@
 #include <string>
 #include <cassert>
 
-#include <rabbits/component/parameters.h>
+#include <rabbits/module/parameters.h>
 
 #include "libsc_qemu/libsc_qemu.h"
 
@@ -82,7 +82,7 @@ public:
 
     void cpu_discover(CpuType::value architecture,
                       const std::string &model,
-                      ComponentParameters &params);
+                      Parameters &params);
 
     int get_next_cpuid() {
         assert(m_next_cpuid < m_discovery.cpu_count);

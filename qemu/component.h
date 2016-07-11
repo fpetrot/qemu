@@ -36,7 +36,7 @@ public:
 
     SC_HAS_PROCESS(QemuComponent);
 
-    QemuComponent(sc_core::sc_module_name name, ComponentParameters &params)
+    QemuComponent(sc_core::sc_module_name name, Parameters &params)
         : Component(name, params), m_lib(QemuInstance::get().get_lib()), m_qdev(NULL) 
     {}
 

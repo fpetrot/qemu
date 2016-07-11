@@ -54,7 +54,7 @@ public:
 };
 
 
-QemuArmGic::QemuArmGic(sc_core::sc_module_name name, ComponentParameters &params)
+QemuArmGic::QemuArmGic(sc_core::sc_module_name name, Parameters &params)
     : QemuSlave(name, params)
 {
     const int num_irq = params["num-irq"].as<int>();

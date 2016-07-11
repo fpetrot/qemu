@@ -151,7 +151,7 @@ protected:
 public:
     SC_HAS_PROCESS(QemuCpu);
 
-    QemuCpu(sc_core::sc_module_name name, ComponentParameters &params)
+    QemuCpu(sc_core::sc_module_name name, Parameters &params)
         : QemuMaster<BUSWIDTH>(name, params)
     {
         QemuInstance &inst = QemuInstance::get();

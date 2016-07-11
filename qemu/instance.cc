@@ -49,7 +49,7 @@ void QemuInstance::add_cpu(CpuType::value type, const string model)
 
 void QemuInstance::cpu_discover(CpuType::value architecture,
                                 const string &model,
-                                ComponentParameters &params)
+                                Parameters &params)
 {
     int insn_limit = params["insn-limit"].as<int>();
     int mips_shift = params["mips-shift"].as<int>();

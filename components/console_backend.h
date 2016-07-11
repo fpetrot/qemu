@@ -46,7 +46,7 @@ private:
 
 public:
     SC_HAS_PROCESS(QemuConsoleBackend);
-    QemuConsoleBackend(sc_core::sc_module_name n, ComponentParameters &p) 
+    QemuConsoleBackend(sc_core::sc_module_name n, Parameters &p)
         : Component(n, p), m_port("uart"), m_lib(QemuInstance::get().get_lib())
     {
         m_qemu_chardev = m_lib.char_dev_create();
