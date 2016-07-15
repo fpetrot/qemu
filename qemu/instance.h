@@ -25,6 +25,7 @@
 #include <cassert>
 
 #include <rabbits/module/parameters.h>
+#include <rabbits/config/manager.h>
 
 #include "libsc_qemu/libsc_qemu.h"
 
@@ -43,7 +44,8 @@ public:
 protected:
     static QemuInstance *m_inst;
 
-    LibScQemu  m_lib;
+    ConfigManager &m_config;
+    LibScQemu m_lib;
     int m_next_cpuid;
 
     /* Contains regions mapped by QEMU devices.
@@ -68,7 +70,7 @@ protected:
 
     void lib_init();
 
-    QemuInstance();
+    QemuInstance(ConfigManager &config);
 
 public:
 
@@ -106,9 +108,9 @@ public:
         return false;
     }
 
-    static QemuInstance& get() {
+    static QemuInstance& get(ConfigManager &config) {
         if (m_inst == NULL) {
-            m_inst = new QemuInstance;
+            m_inst = new QemuInstance(config);
         }
         return *m_inst;
     }

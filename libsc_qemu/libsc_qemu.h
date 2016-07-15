@@ -30,6 +30,7 @@ struct sc_qemu_qdev;
 struct sc_qemu_char_dev;
 
 class DynLib;
+class ConfigManager;
 
 class qemu_io_callbacks {
 public:
@@ -47,6 +48,7 @@ private:
     int m_insn_limit;
     int m_mips_shift;
 
+    ConfigManager &m_config;
     qemu_context *m_qemu_ctx;
     qemu_import *m_qemu_import;
     DynLib *m_lib;
@@ -60,7 +62,7 @@ private:
     static void char_dev_read(void *opaque, const uint8_t *data, int len);
 
 public:
-    LibScQemu();
+    LibScQemu(ConfigManager &config);
     ~LibScQemu();
 
     /* Init data */

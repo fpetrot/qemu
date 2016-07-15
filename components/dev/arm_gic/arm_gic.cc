@@ -54,11 +54,11 @@ public:
 };
 
 
-QemuArmGic::QemuArmGic(sc_core::sc_module_name name, Parameters &params)
-    : QemuSlave(name, params)
+QemuArmGic::QemuArmGic(sc_core::sc_module_name name, Parameters &params, ConfigManager &c)
+    : QemuSlave(name, params, c)
 {
     const int num_irq = params["num-irq"].as<int>();
-    const int num_cpu = QemuInstance::get().get_num_cpu();
+    const int num_cpu = QemuInstance::get(Component::get_config()).get_num_cpu();
 
     m_qdev = m_lib.qdev_create_arm_gic(num_irq);
 

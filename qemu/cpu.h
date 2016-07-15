@@ -134,16 +134,15 @@ protected:
 
 
         for (AddressRange r : mem_map) {
-            if (QemuInstance::get().self_mapping_contains(r)) {
+            if (QemuInstance::get(Component::get_config()).self_mapping_contains(r)) {
                 continue;
             }
 
             declare_memory_region(r);
         }
 
-        ConfigManager & config = ConfigManager::get_manager();
-
-        if (config.get_global_params()["report-non-mapped-access"].as<bool>()) {
+        Parameters &g = Component::get_config().get_global_params();
+        if (g["report-non-mapped-access"].as<bool>()) {
             map_non_mapped(mem_map);
         }
     }
@@ -151,10 +150,10 @@ protected:
 public:
     SC_HAS_PROCESS(QemuCpu);
 
-    QemuCpu(sc_core::sc_module_name name, Parameters &params)
-        : QemuMaster<BUSWIDTH>(name, params)
+    QemuCpu(sc_core::sc_module_name name, Parameters &params, ConfigManager &c)
+        : QemuMaster<BUSWIDTH>(name, params, c)
     {
-        QemuInstance &inst = QemuInstance::get();
+        QemuInstance &inst = QemuInstance::get(Component::get_config());
 
         m_cpuid = inst.get_next_cpuid();
         m_qdev = m_lib.cpu_get_qdev(m_cpuid);

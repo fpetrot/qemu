@@ -37,7 +37,7 @@ public:
     QemuInPort p_in_irq;
     QemuInPort p_in_fiq;
 
-    QemuCpuArm(sc_core::sc_module_name name, Parameters &params);
+    QemuCpuArm(sc_core::sc_module_name name, Parameters &params, ConfigManager &c);
 };
 
 #endif

@@ -32,8 +32,8 @@ protected:
 
 public:
     TlmTargetPort<BUSWIDTH> p_bus;
-    QemuSlave(sc_core::sc_module_name n, Parameters &params)
-        : QemuComponent(n, params), p_bus("bus", *this)
+    QemuSlave(sc_core::sc_module_name n, Parameters &params, ConfigManager &c)
+        : QemuComponent(n, params, c), p_bus("bus", *this)
     {
         p_bus.register_mapped_ev_listener(this);
     }
@@ -70,7 +70,7 @@ public:
     void tlm_target_mapped_event(const AddressRange &r)
     {
         do_mmio_map(r);
-        QemuInstance::get().self_mapping_add(r);
+        QemuInstance::get(Component::get_config()).self_mapping_add(r);
     }
 };
 

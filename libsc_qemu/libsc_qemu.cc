@@ -20,6 +20,7 @@
 #include "libsc_qemu.h"
 
 #include <rabbits/logger.h>
+#include <rabbits/config/manager.h>
 #include <rabbits/dynloader/dynloader.h>
 #include <rabbits/dynloader/dynlib.h>
 #include <rabbits/rabbits_exception.h>
@@ -28,9 +29,10 @@
 #include <sc-qemu/sc_qemu.h>
 
 
-LibScQemu::LibScQemu()
+LibScQemu::LibScQemu(ConfigManager &config)
     : m_insn_limit(0)
     , m_mips_shift(0)
+    , m_config(config)
     , m_qemu_ctx(NULL)
     , m_qemu_import(NULL)
     , m_lib(NULL)
@@ -67,16 +69,16 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
 {
     sc_qemu_init_struct s;
     sc_qemu_init_fn qemu_init = NULL;
-    DynamicLoader &dyn = DynamicLoader::get();
+    DynamicLoader &dyn = m_config.get_dynloader();
 
     m_lib = dyn.search_and_load_library(libname);
     if (m_lib == NULL) {
-        throw RabbitsException("sc-qemu library `" 
+        throw RabbitsException("sc-qemu library `"
                                + libname + "." + DynLib::get_lib_extension() + "` not found.");
     }
 
     if (!m_lib->check_symbol(SC_QEMU_INIT_SYM_STR)) {
-        throw RabbitsException("Invalid sc-qemu library `" + libname 
+        throw RabbitsException("Invalid sc-qemu library `" + libname
                                + "`. (Symbol " + SC_QEMU_INIT_SYM_STR + " not found).");
     }
 
@@ -129,8 +131,8 @@ void LibScQemu::start_gdb_server(std::string port)
     m_qemu_import->start_gdbserver(m_qemu_ctx, port.c_str());
 }
 
-/* 
- * QEMU devices 
+/*
+ * QEMU devices
  */
 sc_qemu_qdev * LibScQemu::qdev_create_cortex_a15_priv(int num_int)
 {

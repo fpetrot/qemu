@@ -29,8 +29,10 @@ const string QemuInstance::CpuType::LIB[] = {
     [CpuType::ARM] = "libqemu-system-arm",
 };
 
-QemuInstance::QemuInstance()
-    : m_next_cpuid(0)
+QemuInstance::QemuInstance(ConfigManager &config)
+    : m_config(config)
+    , m_lib(m_config)
+    , m_next_cpuid(0)
 {
 }
 
@@ -80,7 +82,6 @@ void QemuInstance::lib_init()
         << m_discovery.cpu_count << " " << m_discovery.cpu_model
         << " cpu(s)\n";
 
-    //m_lib.register_io_callback(m_master);
     m_lib.set_insn_limit(m_discovery.insn_limit);
     m_lib.set_mips_shift(m_discovery.mips_shift);
     m_lib.init(lib_name, m_discovery.cpu_count, m_discovery.cpu_model);

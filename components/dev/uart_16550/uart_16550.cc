@@ -21,8 +21,8 @@
 
 #include <rabbits/logger.h>
 
-QemuUart16550::QemuUart16550(sc_core::sc_module_name name, Parameters &params)
-    : QemuSlave(name, params)
+QemuUart16550::QemuUart16550(sc_core::sc_module_name name, Parameters &params, ConfigManager &c)
+    : QemuSlave(name, params, c)
     , m_regshift(params["regshift"].as<int>())
     , m_baudbase(params["baudbase"].as<int>())
     , m_qdev(m_lib.qdev_create_uart_16550(m_regshift, m_baudbase))
