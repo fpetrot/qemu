@@ -1,5 +1,5 @@
 component:
-  name: qemu-console-backend
+  implementation: qemu-console-backend
   type: qemu-console-backend
   description: Qemu Console Backend
   class: QemuConsoleBackend

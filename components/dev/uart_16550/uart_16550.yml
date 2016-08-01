@@ -1,5 +1,5 @@
 component:
-  name: qemu-uart-16550
+  implementation: qemu-uart-16550
   type: uart-16550
   class: QemuUart16550
   include: uart_16550.h

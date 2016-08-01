@@ -1,5 +1,5 @@
 component:
-  name: qemu-arm-gic
+  implementation: qemu-arm-gic
   type: arm-gic
   class: QemuArmGic
   include: arm_gic.h

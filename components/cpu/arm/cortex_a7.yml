@@ -1,7 +1,7 @@
 include: arm.inc.yml
 
 component:
-  name: qemu-cpu-arm-cortex-a7
+  implementation: qemu-cpu-arm-cortex-a7
   type: cpu-arm-cortex-a7
   class: QemuCpuArmCortexA7
   include: cortex_a7.h

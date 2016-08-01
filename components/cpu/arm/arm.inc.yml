@@ -1,5 +1,5 @@
 component:
-  name: generic-arm-cpu
+  implementation: generic-arm-cpu
   discover: true
   parameters:
     gdb-server:
