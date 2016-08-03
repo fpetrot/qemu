@@ -35,7 +35,7 @@ public:
 
     QemuMaster(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
         : QemuComponent(name, params, c)
-	, p_bus("bus", *this) {}
+	, p_bus("mem", *this) {}
 
     virtual ~QemuMaster() {}
 

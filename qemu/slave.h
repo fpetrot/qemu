@@ -33,7 +33,7 @@ protected:
 public:
     TlmTargetPort<BUSWIDTH> p_bus;
     QemuSlave(sc_core::sc_module_name n, const Parameters &params, ConfigManager &c)
-        : QemuComponent(n, params, c), p_bus("bus", *this)
+        : QemuComponent(n, params, c), p_bus("mem", *this)
     {
         p_bus.register_mapped_ev_listener(this);
     }
