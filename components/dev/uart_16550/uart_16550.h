@@ -35,7 +35,7 @@ protected:
 public:
     QemuOutPort p_irq;
 
-    QemuUart16550(sc_core::sc_module_name name, Parameters &params, ConfigManager &c);
+    QemuUart16550(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c);
     virtual ~QemuUart16550() {}
 };
 

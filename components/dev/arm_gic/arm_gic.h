@@ -43,7 +43,7 @@ protected:
     void do_mmio_map(const AddressRange &range);
 
 public:
-    QemuArmGic(sc_core::sc_module_name name, Parameters &params, ConfigManager &c);
+    QemuArmGic(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c);
     ~QemuArmGic();
 };
 

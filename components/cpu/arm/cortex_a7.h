@@ -31,7 +31,7 @@ public:
     QemuOutPort p_irq_timer_hyp;
     QemuOutPort p_irq_timer_sec;
 
-    QemuCpuArmCortexA7(sc_core::sc_module_name name, Parameters &params, ConfigManager &c)
+    QemuCpuArmCortexA7(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
         : QemuCpuArm(name, params, c)
         , p_irq_timer_phys("irq-timer-phys", m_lib, m_qdev, 0)
         , p_irq_timer_virt("irq-timer-virt", m_lib, m_qdev, 1)

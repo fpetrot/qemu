@@ -33,7 +33,7 @@ class QemuMaster : public QemuComponent, public tlm::tlm_bw_transport_if<>
 public:
     TlmInitiatorPort<BUSWIDTH> p_bus;
 
-    QemuMaster(sc_core::sc_module_name name, Parameters &params, ConfigManager &c)
+    QemuMaster(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
         : QemuComponent(name, params, c)
 	, p_bus("bus", *this) {}
 
