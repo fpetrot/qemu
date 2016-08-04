@@ -1,6 +1,0 @@
-component:
-  implementation: qemu-console-backend
-  type: qemu-console-backend
-  description: Qemu Console Backend
-  class: QemuConsoleBackend
-  include: console_backend.h
