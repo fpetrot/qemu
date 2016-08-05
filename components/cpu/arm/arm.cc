@@ -31,11 +31,5 @@ QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, const Parameters &params, C
     , p_in_irq("irq", m_lib, m_qdev, SC_QEMU_ARM_IRQ_IRQ)
     , p_in_fiq("fiq", m_lib, m_qdev, SC_QEMU_ARM_IRQ_FIQ)
 {
-    string gdb_port = params["gdb-server"].as<string>();
-
-    if (gdb_port != "") {
-        LOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
-        m_lib.start_gdb_server("tcp::" + gdb_port);
-    }
 }
 

@@ -26,13 +26,14 @@
 #include <rabbits/arith.h>
 #include <rabbits/config/manager.h>
 
-#include "master.h"
+#include "qemu/master.h"
 
 template <unsigned int BUSWIDTH = 32>
 class QemuCpu : public QemuMaster<BUSWIDTH>, public qemu_io_callbacks {
 protected:
     using QemuMaster<BUSWIDTH>::m_lib;
     using QemuMaster<BUSWIDTH>::m_qdev;
+    using QemuMaster<BUSWIDTH>::m_params;
 
 public:
     using QemuMaster<BUSWIDTH>::p_bus;
@@ -161,6 +162,16 @@ public:
         if (!m_cpuid) {
             SC_THREAD(mainloop_thread);
             m_lib.register_io_callback(*this);
+
+            Component::get_config().add_param_alias("gdb-server", m_params["gdb-server"]);
+            std::string gdb_port = params["gdb-server"].as<std::string>();
+
+            if (gdb_port != "") {
+                LOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
+                m_lib.start_gdb_server("tcp::" + gdb_port);
+            }
+        } else {
+            m_params["gdb-server"].set_advanced();
         }
     }
 

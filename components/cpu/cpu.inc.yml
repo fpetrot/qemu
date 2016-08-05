@@ -1,0 +1,23 @@
+component:
+  implementation: generic-qemu-cpu
+  discover: true
+  parameters:
+    gdb-server:
+      type: string
+      default: ""
+      description: |
+        Start a GDB server on the specified port and wait for connection.
+    insn-limit:
+      type: integer
+      default: 0
+      description: |
+        Limit the number of simulated instruction each time the CPU simulation loop is called.
+        0 means no limit. This option affects all QEMU cpus.
+      advanced: true
+    mips-shift:
+      type: integer
+      default: 0
+      description: |
+        QEMU icount shift option. This option affects all QEMU cpus.
+      advanced: true
+

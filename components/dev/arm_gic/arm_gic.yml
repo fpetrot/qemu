@@ -9,4 +9,5 @@ component:
       type: integer
       default: 160
       description: Number of interrupt input lines.
+      advanced: true
 

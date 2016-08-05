@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "qemu/cpu.h"
+#include "../cpu.h"
 #include "qemu/port/in.h"
 
 class QemuCpuArm : public QemuCpu<32> {
