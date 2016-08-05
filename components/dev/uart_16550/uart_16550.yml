@@ -4,6 +4,7 @@ component:
   class: QemuUart16550
   include: uart_16550.h
   description: UART 16550 compatible provided by QEMU.
+  priority: -10
   parameters:
     baudbase:
       type: integer
