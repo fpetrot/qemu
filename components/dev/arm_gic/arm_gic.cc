@@ -37,7 +37,7 @@ private:
     int m_cur_irq = 0;
 
 public:
-    IrqInGenerator(LibScQemu& lib, sc_qemu_qdev *qdev, int num_irq, int num_cpu) 
+    IrqInGenerator(LibScQemu& lib, sc_qemu_qdev *qdev, int num_irq, int num_cpu)
         : m_lib(lib), m_qdev(qdev), m_num_irq(num_irq), m_num_cpu(num_cpu) {}
 
     QemuInPort* operator()() {
@@ -57,10 +57,15 @@ public:
 QemuArmGic::QemuArmGic(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
     : QemuSlave(name, params, c)
 {
-    const int num_irq = params["num-irq"].as<int>();
+    const uint32_t revision = params["revision"].as<uint32_t>();
+    const uint32_t num_irq = params["num-irq"].as<uint32_t>();
+    const bool has_sec_extn = params["has-security-extensions"].as<bool>();
+    const uint32_t cpu_if_id = params["cpu-iface-id"].as<uint32_t>();
+    const uint32_t min_bpr = params["min-bpr"].as<uint32_t>();
     const int num_cpu = QemuInstance::get(Component::get_config()).get_num_cpu();
 
-    m_qdev = m_lib.qdev_create_arm_gic(num_irq);
+    m_qdev = m_lib.qdev_create_arm_gic(revision, num_irq, has_sec_extn,
+                                       cpu_if_id, min_bpr);
 
     IrqInGenerator irq_gen(m_lib, m_qdev, num_irq, num_cpu);
 
@@ -75,7 +80,7 @@ QemuArmGic::QemuArmGic(sc_core::sc_module_name name, const Parameters &params, C
     }
 }
 
-QemuArmGic::~QemuArmGic() 
+QemuArmGic::~QemuArmGic()
 {
     m_lib.qdev_destroy(m_qdev);
 }

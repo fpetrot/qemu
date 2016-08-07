@@ -5,9 +5,29 @@ component:
   include: arm_gic.h
   description: ARM GIC interrupt controller provided by QEMU.
   parameters:
+    revision:
+      type: uint32
+      default: 1
+      description: GIC architecture version.
+      advanced: true
     num-irq:
-      type: integer
+      type: uint32
       default: 160
       description: Number of interrupt input lines.
+      advanced: true
+    has-security-extensions:
+      type: boolean
+      default: false
+      description: Enable or disable security extensions on the GIC.
+      advanced: true
+    cpu-iface-id:
+      type: uint32
+      default: 0
+      description: CPU interface identification register value.
+      advanced: true
+    min-bpr:
+      type: uint32
+      default: 0
+      description: Minimal Binary Point Register value.
       advanced: true
 

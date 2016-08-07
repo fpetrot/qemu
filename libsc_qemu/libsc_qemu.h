@@ -93,7 +93,9 @@ public:
 
     /* ARM GIC interrupt controller
      * @num_irq: Number of irq lines in the GIC */
-    sc_qemu_qdev * qdev_create_arm_gic(int num_irq);
+    sc_qemu_qdev * qdev_create_arm_gic(uint32_t revision, uint32_t num_irq,
+                                       int secure_extn, uint32_t cpu_iface_id,
+                                       uint32_t min_bpr);
 
     /* 16550 compatible UART
      * @reg_shift: right shift applied on register access (2 -> 1 reg every 4 bytes)

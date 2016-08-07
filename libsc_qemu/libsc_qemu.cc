@@ -141,11 +141,13 @@ sc_qemu_qdev * LibScQemu::qdev_create_cortex_a15_priv(int num_int)
     return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_ARM_A15PRIV, i);
 }
 
-sc_qemu_qdev * LibScQemu::qdev_create_arm_gic(int num_int)
+sc_qemu_qdev * LibScQemu::qdev_create_arm_gic(uint32_t revision, uint32_t num_irq,
+                                              int secure_extn, uint32_t cpu_iface_id,
+                                              uint32_t min_bpr)
 {
     assert(m_qemu_import);
-    uint32_t i = num_int;
-    return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_ARM_GIC, i);
+    return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_ARM_GIC, revision, num_irq,
+                                      secure_extn, cpu_iface_id, min_bpr);
 }
 
 sc_qemu_qdev * LibScQemu::qdev_create_uart_16550(int reg_shift, int baudbase)
