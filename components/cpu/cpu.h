@@ -57,12 +57,12 @@ protected:
     }
 
     void map_as_io(AddressRange region) {
-        LOG(APP, DBG) << "Mapping region " << region << " in QEMU as I/O\n";
+        MLOG(APP, DBG) << "Mapping region " << region << " in QEMU as I/O\n";
         m_lib.map_io(region.begin(), region.size());
     }
 
     void map_as_dmi(AddressRange region, void *ptr, bool readonly) {
-        LOG(APP, DBG) << "Mapping region " << region << " in QEMU as DMI (ro:" << readonly << ")\n";
+        MLOG(APP, DBG) << "Mapping region " << region << " in QEMU as DMI (ro:" << readonly << ")\n";
         m_lib.map_dmi(region.begin(), region.size(), ptr, readonly);
     }
 
@@ -71,7 +71,7 @@ protected:
         /* Ensure dmi region is included into region. Otherwise, the DMI info
          * are buggy and we should report it. */
         if (info.range.begin() < region.begin() || info.range.end() > region.end()) {
-            LOG(APP, ERR) << "Buggy DMI info for address range " << region << ". Falling back to I/O\n";
+            MLOG(APP, ERR) << "Buggy DMI info for address range " << region << ". Falling back to I/O\n";
             map_as_io(region);
             return false;
         }
@@ -167,7 +167,7 @@ public:
             std::string gdb_port = params["gdb-server"].as<std::string>();
 
             if (gdb_port != "") {
-                LOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
+                MLOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
                 m_lib.start_gdb_server("tcp::" + gdb_port);
             }
         } else {
