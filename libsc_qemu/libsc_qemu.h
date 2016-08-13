@@ -45,15 +45,16 @@ public:
 
 class LibScQemu {
 private:
-    int m_insn_limit;
-    int m_mips_shift;
+    int m_insn_limit = 0;
+    int m_mips_shift = 0;
+    bool m_map_whole_as = false;
 
     ConfigManager &m_config;
-    qemu_context *m_qemu_ctx;
-    qemu_import *m_qemu_import;
-    DynLib *m_lib;
+    qemu_context *m_qemu_ctx = nullptr;
+    qemu_import *m_qemu_import = nullptr;
+    DynLib *m_lib = nullptr;
 
-    qemu_io_callbacks *m_io_cb;
+    qemu_io_callbacks *m_io_cb = nullptr;
 
     /* Callbacks from sc-qemu lib */
     static uint32_t qemu_sc_read(void *opaque, uint32_t addr, uint32_t size);
@@ -68,6 +69,7 @@ public:
     /* Init data */
     void set_insn_limit(int insn_limit) { m_insn_limit = insn_limit; }
     void set_mips_shift(int mips_shift) { m_mips_shift = mips_shift; }
+    void set_map_whole_as(bool map_whole_as) { m_map_whole_as = map_whole_as; }
 
     void init(std::string lib_path, int num_cpu, std::string cpu_model);
     bool is_inited() const { return m_lib != NULL; }

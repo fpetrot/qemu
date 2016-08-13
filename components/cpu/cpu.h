@@ -57,8 +57,13 @@ protected:
     }
 
     void map_as_io(AddressRange region) {
-        MLOG(APP, DBG) << "Mapping region " << region << " in QEMU as I/O\n";
-        m_lib.map_io(region.begin(), region.size());
+        Parameters &g = Component::get_config().get_global_params();
+        if (!(g["report-non-mapped-access"].as<bool>())) {
+            /* Mapping I/O only if non-mapped access report is disabled.
+             * Otherwise, the whole address space is already mapped. */
+            MLOG(APP, DBG) << "Mapping region " << region << " in QEMU as I/O\n";
+            m_lib.map_io(region.begin(), region.size());
+        }
     }
 
     void map_as_dmi(AddressRange region, void *ptr, bool readonly) {
@@ -122,17 +127,8 @@ protected:
         }
     }
 
-    void map_non_mapped(const std::vector<AddressRange> &mem_map) {
-        std::vector<AddressRange> neg_mem_map;
-        Arith::neg_memmap32(mem_map, neg_mem_map);
-        for (AddressRange r : neg_mem_map) {
-            map_as_io(r);
-        }
-    }
-
     void declare_memory_regions() {
         const std::vector<AddressRange> &mem_map = p_bus.get_memory_mapping();
-
 
         for (AddressRange r : mem_map) {
             if (QemuInstance::get(Component::get_config()).self_mapping_contains(r)) {
@@ -140,11 +136,6 @@ protected:
             }
 
             declare_memory_region(r);
-        }
-
-        Parameters &g = Component::get_config().get_global_params();
-        if (g["report-non-mapped-access"].as<bool>()) {
-            map_non_mapped(mem_map);
         }
     }
 

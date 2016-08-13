@@ -30,13 +30,7 @@
 
 
 LibScQemu::LibScQemu(ConfigManager &config)
-    : m_insn_limit(0)
-    , m_mips_shift(0)
-    , m_config(config)
-    , m_qemu_ctx(NULL)
-    , m_qemu_import(NULL)
-    , m_lib(NULL)
-    , m_io_cb(NULL)
+    : m_config(config)
 {
 }
 
@@ -86,8 +80,6 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
 
     qemu_init = (sc_qemu_init_fn) m_lib->get_symbol(SC_QEMU_INIT_SYM_STR);
 
-    //assert(m_io_cb != NULL);
-
     s.sc_import.write = qemu_sc_write;
     s.sc_import.read = qemu_sc_read;
 
@@ -97,6 +89,7 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
     s.opaque = this;
     s.max_run_time = m_insn_limit;
     s.cpu_mips_shift = m_mips_shift;
+    s.map_whole_as = m_map_whole_as;
 
     m_qemu_ctx = qemu_init(&s);
 }
