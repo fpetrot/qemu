@@ -155,7 +155,7 @@ public:
             m_lib.register_io_callback(*this);
 
             Component::get_config().add_param_alias("gdb-server", m_params["gdb-server"]);
-            std::string gdb_port = params["gdb-server"].as<std::string>();
+            std::string gdb_port = m_params["gdb-server"].template as<std::string>();
 
             if (gdb_port != "") {
                 MLOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
