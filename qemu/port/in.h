@@ -34,6 +34,16 @@ protected:
 
     QemuInternalSignalCS m_cs;
 
+#ifdef RABBITS_WORKAROUND_CXX11_GCC_BUGS
+    class WatchThread : public ScThreadCallbackFtor {
+    private:
+        QemuInPort &m_inst;
+    public:
+        WatchThread(QemuInPort &inst) : m_inst(inst) {}
+        void operator() () { m_inst.watch_port(); }
+    };
+#endif
+
     void watch_port() {
         const sc_core::sc_event &ev = sc_p.default_event();
 
@@ -60,7 +70,11 @@ public:
         if (&cs != &m_cs) {
             /* SystemC to QEMU connection. We must setup the SystemC thread
              * that will watch the gpio and update QEMU accordingly */
+#ifdef RABBITS_WORKAROUND_CXX11_GCC_BUGS
+            push_thread_to_parent(std::make_shared<WatchThread>(*this));
+#else
             push_thread_to_parent([this]() { this->watch_port(); });
+#endif
         } else {
             /* Internal QEMU connection. Stub the useless sc_port to make it
              * connected */
