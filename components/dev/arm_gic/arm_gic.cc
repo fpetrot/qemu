@@ -28,25 +28,45 @@
 #include "arm_gic.h"
 #include "qemu/instance.h"
 
-class IrqInGenerator {
+class PpiGenerator {
 private:
     LibScQemu &m_lib;
     sc_qemu_qdev *m_qdev;
-    int m_num_irq, m_num_cpu;
+    int m_num_irq, m_cpu_idx;
 
     int m_cur_irq = 0;
 
 public:
-    IrqInGenerator(LibScQemu& lib, sc_qemu_qdev *qdev, int num_irq, int num_cpu)
-        : m_lib(lib), m_qdev(qdev), m_num_irq(num_irq), m_num_cpu(num_cpu) {}
+    PpiGenerator(LibScQemu& lib, sc_qemu_qdev *qdev, int num_irq, int cpu_idx)
+        : m_lib(lib), m_qdev(qdev), m_num_irq(num_irq), m_cpu_idx(cpu_idx) {}
 
-    QemuInPort* operator()() {
+    QemuInPort* operator()(const std::string &s) {
+        QemuInPort *irq;
+        const int qemu_idx = m_num_irq + 32*(m_cpu_idx-1) + m_cur_irq++;
+
+        irq = new QemuInPort(s, m_lib, m_qdev, qemu_idx);
+        irq->set_autoconnect_to(0);
+
+        return irq;
+    }
+};
+
+class SpiGenerator {
+private:
+    LibScQemu &m_lib;
+    sc_qemu_qdev *m_qdev;
+
+public:
+    SpiGenerator(LibScQemu& lib, sc_qemu_qdev *qdev)
+        : m_lib(lib), m_qdev(qdev) {}
+
+    QemuInPort* operator()(const std::string &s, int idx) {
         std::stringstream ss;
         QemuInPort *irq;
 
-        ss << "irq" << m_cur_irq;
-        irq = new QemuInPort(ss.str(), m_lib, m_qdev, m_cur_irq++);
+        ss << s << (idx);
 
+        irq = new QemuInPort(ss.str(), m_lib, m_qdev, idx);
         irq->set_autoconnect_to(0);
 
         return irq;
@@ -67,16 +87,20 @@ QemuArmGic::QemuArmGic(sc_core::sc_module_name name, const Parameters &params, C
     m_qdev = m_lib.qdev_create_arm_gic(revision, num_irq, has_sec_extn,
                                        cpu_if_id, min_bpr);
 
-    IrqInGenerator irq_gen(m_lib, m_qdev, num_irq, num_cpu);
-
-    p_irqs_in.resize(num_irq - 32 + (32 * num_cpu));
-    std::generate(p_irqs_in.begin(), p_irqs_in.end(), irq_gen);
+    SpiGenerator spi_gen(m_lib, m_qdev);
+    p_spis = new VectorPort<QemuInPort>("spi", num_irq - 32, spi_gen);
 
     for (int i = 0; i < num_cpu; i++) {
-        std::stringstream cpu_num;
-        cpu_num << "cpu" << i;
-        p_irqs_to_cpus.push_back(new QemuOutPort(cpu_num.str() + "-irq", m_lib, m_qdev, i));
-        p_irqs_to_cpus.push_back(new QemuOutPort(cpu_num.str() + "-fiq", m_lib, m_qdev, num_cpu + i));
+        PpiGenerator ppi_gen(m_lib, m_qdev, num_irq, i);
+        std::stringstream ss;
+        ss << "cpu" << i;
+
+        p_ppis.push_back(new VectorPort<QemuInPort>(ss.str() + "-ppi", 32, ppi_gen));
+
+        p_irqs_to_cpus.push_back(new QemuOutPort(ss.str() + "-irq", m_lib,
+                                                 m_qdev, i));
+        p_irqs_to_cpus.push_back(new QemuOutPort(ss.str() + "-fiq", m_lib,
+                                                 m_qdev, num_cpu + i));
     }
 }
 

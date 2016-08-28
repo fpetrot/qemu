@@ -17,11 +17,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/* 
- *  This QEMU device encapsulate the privates devices of a cortex-a15 mpcore
- *  It includes the GIC (interrupt controller), which is already connected to
- *  the cpus, and generic timer irq lines connected to the GIC.
- */
 
 #ifndef _QEMU_WRAPPER_DEV_ARM_GIC_H
 #define _QEMU_WRAPPER_DEV_ARM_GIC_H
@@ -31,13 +26,16 @@
 #include "qemu/slave.h"
 #include "qemu/port/in.h"
 #include "qemu/port/out.h"
+#include <rabbits/component/port/vector.h>
 
 
 class QemuArmGic : public QemuSlave<>
 {
 public:
-    std::vector< QemuInPort* > p_irqs_in;
     std::vector< QemuOutPort* > p_irqs_to_cpus;
+
+    std::vector< VectorPort<QemuInPort>* > p_ppis;
+    VectorPort<QemuInPort> *p_spis;
 
 protected:
     void do_mmio_map(const AddressRange &range);
