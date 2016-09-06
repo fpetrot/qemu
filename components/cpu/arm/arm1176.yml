@@ -1,0 +1,8 @@
+include: arm.inc.yml
+
+component:
+  implementation: qemu-cpu-arm-1176
+  type: cpu-arm-1176
+  class: QemuCpuArm1176
+  include: arm1176.h
+  description: ARM 1176 CPU simulation provided by QEMU.
