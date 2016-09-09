@@ -112,6 +112,8 @@ public:
     void qdev_irq_connect(sc_qemu_qdev *src, int src_idx, sc_qemu_qdev *dst, int dst_idx);
     void qdev_irq_update(sc_qemu_qdev *, int irq_idx, int level);
 
+    void qdev_connect_gpio_out(sc_qemu_qdev *, int gpio_idx, void (*value_changed_cb)(void *opaque, int n, int level), void *opaque);
+
     void register_io_callback(qemu_io_callbacks &);
 
     sc_qemu_char_dev *char_dev_create();

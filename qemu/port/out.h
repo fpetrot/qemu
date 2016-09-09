@@ -28,6 +28,8 @@ private:
     sc_core::sc_signal<bool> *m_stub_sig = nullptr;
 
 protected:
+    LibScQemu *m_lib;
+    sc_qemu_qdev *m_qdev;
     int m_idx;
 
     QemuInternalSignalCS m_cs;
@@ -36,12 +38,20 @@ public:
     QemuOutPort(const std::string &name, LibScQemu &lib, sc_qemu_qdev *qdev, int idx)
         : OutPort(name), m_idx(idx), m_cs(&lib, qdev, idx, QemuInternalSignalCS::OUT)
     {
+        m_lib = &lib;
+        m_qdev = qdev;
+
         add_connection_strategy_front(m_cs);
+    }
+
+    static void value_changed_handler(void *opaque, int n, int level) {
+        QemuOutPort *port = (QemuOutPort *)opaque;
+        port->sc_p = level != 0;
     }
 
     virtual void selected_strategy(ConnectionStrategyBase &cs) {
         if (&cs != &m_cs) {
-            LOG(APP, ERR) << "QEMU to SystemC gpio connection is not implemented\n";
+            m_lib->qdev_connect_gpio_out(m_qdev, m_idx, value_changed_handler, this);
         } else {
             /* Internal QEMU connection. Stub the useless sc_port to make it
              * connected */

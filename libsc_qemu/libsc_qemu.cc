@@ -179,6 +179,12 @@ void LibScQemu::qdev_irq_update(sc_qemu_qdev *dev, int irq_idx, int level)
     m_qemu_import->qdev_irq_update(dev, irq_idx, level);
 }
 
+void LibScQemu::qdev_connect_gpio_out(sc_qemu_qdev *dev, int gpio_idx, void (*value_changed_cb)(void *opaque, int n, int level), void *opaque)
+{
+    assert(m_qemu_import);
+    m_qemu_import->qdev_connect_gpio_out(dev, gpio_idx, value_changed_cb, opaque);
+}
+
 void LibScQemu::register_io_callback(qemu_io_callbacks &cb)
 {
     m_io_cb = &cb;
