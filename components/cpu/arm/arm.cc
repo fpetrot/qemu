@@ -26,8 +26,9 @@
 
 using std::string;
 
-QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
-    : QemuCpu<32>(name, params, c)
+QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, const Parameters &params,
+                       ConfigManager &c, const std::string & model)
+    : QemuCpu<32>(name, params, c, model + "-arm-cpu")
     , p_in_irq("irq", m_lib, m_qdev, SC_QEMU_ARM_IRQ_IRQ)
     , p_in_fiq("fiq", m_lib, m_qdev, SC_QEMU_ARM_IRQ_FIQ)
 {

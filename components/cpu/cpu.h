@@ -33,6 +33,7 @@ class QemuCpu : public QemuMaster<BUSWIDTH>, public qemu_io_callbacks {
 protected:
     using QemuMaster<BUSWIDTH>::m_lib;
     using QemuMaster<BUSWIDTH>::m_qdev;
+    using QemuMaster<BUSWIDTH>::m_obj;
     using QemuMaster<BUSWIDTH>::m_params;
 
 public:
@@ -142,10 +143,12 @@ protected:
 public:
     SC_HAS_PROCESS(QemuCpu);
 
-    QemuCpu(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
+    QemuCpu(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c, const std::string type_name)
         : QemuMaster<BUSWIDTH>(name, params, c)
     {
         QemuInstance &inst = QemuInstance::get(Component::get_config());
+
+        m_obj = m_lib.object_new(type_name.c_str());
 
         m_cpuid = inst.get_next_cpuid();
         m_qdev = m_lib.cpu_get_qdev(m_cpuid);
