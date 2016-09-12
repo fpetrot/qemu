@@ -30,14 +30,15 @@
 class QemuComponent : public Component {
 protected:
     LibScQemu &m_lib;
-    sc_qemu_qdev *m_qdev;
+    sc_qemu_qdev *m_qdev = nullptr;
+    QemuObject *m_obj = nullptr;
 
 public:
 
     SC_HAS_PROCESS(QemuComponent);
 
     QemuComponent(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
-        : Component(name, params, c), m_lib(QemuInstance::get(get_config()).get_lib()), m_qdev(NULL) 
+        : Component(name, params, c), m_lib(QemuInstance::get(get_config()).get_lib())
     {}
 
     virtual ~QemuComponent() {}

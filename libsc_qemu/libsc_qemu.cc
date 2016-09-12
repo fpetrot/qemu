@@ -211,3 +211,51 @@ void LibScQemu::char_dev_register_callbacks(sc_qemu_char_dev *dev, qemu_char_dev
     assert(m_qemu_import);
     m_qemu_import->char_dev_register_read(dev, char_dev_read, cb);
 }
+
+QemuObject * LibScQemu::object_new(const char *type_name)
+{
+    sc_qemu_object *obj =  m_qemu_import->object_new(m_qemu_ctx, type_name);
+    QemuObject *ret = new QemuObject(obj, *this);
+
+    return ret;
+}
+
+void LibScQemu::object_set_bool(sc_qemu_object *obj, bool val, const char *name)
+{
+    assert(m_qemu_import);
+    m_qemu_import->object_property_set_bool(obj, val, name);
+}
+
+void LibScQemu::object_set_int(sc_qemu_object *obj, int64_t val, const char *name)
+{
+    assert(m_qemu_import);
+    m_qemu_import->object_property_set_int(obj, val, name);
+}
+
+void LibScQemu::object_set_str(sc_qemu_object *obj, const char *val, const char *name)
+{
+    assert(m_qemu_import);
+    m_qemu_import->object_property_set_str(obj, val, name);
+}
+
+
+void QemuObject::realize()
+{
+    m_lib.object_set_bool(m_obj, true, "realized");
+    m_realized = true;
+}
+
+void QemuObject::set_prop_bool(const char *name, bool val)
+{
+    m_lib.object_set_bool(m_obj, val, name);
+}
+
+void QemuObject::set_prop_int(const char *name, int64_t val)
+{
+    m_lib.object_set_int(m_obj, val, name);
+}
+
+void QemuObject::set_prop_str(const char *name, const char *val)
+{
+    m_lib.object_set_str(m_obj, val, name);
+}

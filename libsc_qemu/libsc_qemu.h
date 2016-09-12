@@ -28,6 +28,7 @@ struct qemu_import;
 struct qemu_context;
 struct sc_qemu_qdev;
 struct sc_qemu_char_dev;
+struct sc_qemu_object;
 
 class DynLib;
 class ConfigManager;
@@ -42,6 +43,8 @@ class qemu_char_dev_callbacks {
 public:
     virtual void qemu_char_dev_read(const uint8_t *data, int len) = 0;
 };
+
+class QemuObject;
 
 class LibScQemu {
 private:
@@ -118,6 +121,34 @@ public:
     int char_dev_write(sc_qemu_char_dev *, const uint8_t *data, int len);
     void char_dev_register_callbacks(sc_qemu_char_dev *, qemu_char_dev_callbacks *);
 
+    QemuObject * object_new(const char *type_name);
+
+    void object_set_bool(sc_qemu_object *obj, bool val, const char *name);
+    void object_set_int(sc_qemu_object *obj, int64_t val, const char *name);
+    void object_set_str(sc_qemu_object *obj, const char *val, const char *name);
+};
+
+
+class QemuObject {
+private:
+    sc_qemu_object *m_obj;
+    LibScQemu &m_lib;
+
+    bool m_realized = false;
+
+public:
+    QemuObject(sc_qemu_object *obj, LibScQemu &lib)
+        : m_obj(obj)
+        , m_lib(lib)
+    {}
+
+    virtual ~QemuObject() {}
+
+    void realize();
+
+    void set_prop_bool(const char *name, bool val);
+    void set_prop_int(const char *name, int64_t val);
+    void set_prop_str(const char *name, const char *val);
 };
 
 #endif
