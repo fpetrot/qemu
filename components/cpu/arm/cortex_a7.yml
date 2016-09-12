@@ -6,3 +6,8 @@ component:
   class: QemuCpuArmCortexA7
   include: cortex_a7.h
   description: ARM Cortex-A7 CPU simulation provided by QEMU.
+  parameters:
+    cp15-cbar:
+      description: Configuration base address register.
+      type: uint32
+      default: 0

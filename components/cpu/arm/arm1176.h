@@ -17,28 +17,23 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _QEMU_WRAPPER_QEMU_CPU_ARM_H
-#define _QEMU_WRAPPER_QEMU_CPU_ARM_H
+#ifndef _QEMU_COMPONENTS_CPU_ARM_1176_H
+#define _QEMU_COMPONENTS_CPU_ARM_1176_H
 
-#include <string>
+#include "arm.h"
 
-#include "../cpu.h"
-#include "qemu/port/in.h"
+#include "qemu/port/out.h"
 
-class QemuCpuArm : public QemuCpu<32> {
-protected:
-    using QemuCpu<32>::m_lib;
-    using QemuCpu<32>::m_qdev;
-
+class QemuCpuArm1176 : public QemuCpuArm {
 public:
-    using QemuCpu<32>::p_bus;
+    QemuCpuArm1176(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
+        : QemuCpuArm(name, params, c, "arm1176") {}
 
-public:
-    QemuInPort p_in_irq;
-    QemuInPort p_in_fiq;
-
-    QemuCpuArm(sc_core::sc_module_name name, const Parameters &params,
-               ConfigManager &c, const std::string & model);
+    static void discover(const std::string &name, Parameters &params, ConfigManager &config)
+    {
+        QemuInstance::get(config).cpu_discover(QemuInstance::CpuType::ARM,
+                                         "arm1176", params);
+    }
 };
 
 #endif
