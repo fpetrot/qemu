@@ -43,6 +43,11 @@ public:
     virtual void qemu_char_dev_read(const uint8_t *data, int len) = 0;
 };
 
+class qemu_qdev_gpio_callbacks {
+public:
+    virtual void qemu_qdev_gpio_event(sc_qemu_qdev *dev, int n, int level) = 0;
+};
+
 class LibScQemu {
 private:
     int m_insn_limit = 0;
@@ -61,6 +66,7 @@ private:
     static void qemu_sc_write(void *opaque, uint32_t addr,
                               uint32_t val, uint32_t size);
     static void char_dev_read(void *opaque, const uint8_t *data, int len);
+    static void qdev_gpio_event(sc_qemu_qdev *dev, int n, int level, void *opaque);
 
 public:
     LibScQemu(ConfigManager &config);
@@ -111,8 +117,7 @@ public:
     void qdev_mmio_map(sc_qemu_qdev *, int mmio_id, uint32_t addr);
     void qdev_irq_connect(sc_qemu_qdev *src, int src_idx, sc_qemu_qdev *dst, int dst_idx);
     void qdev_irq_update(sc_qemu_qdev *, int irq_idx, int level);
-
-    void qdev_connect_gpio_out(sc_qemu_qdev *, int gpio_idx, void (*value_changed_cb)(void *opaque, int n, int level), void *opaque);
+    void qdev_gpio_register_cb(sc_qemu_qdev *, int gpio_idx, qemu_qdev_gpio_callbacks *);
 
     void register_io_callback(qemu_io_callbacks &);
 

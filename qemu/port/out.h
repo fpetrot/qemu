@@ -23,7 +23,7 @@
 #include <rabbits/component/port/out.h>
 #include "qemu/connection_strategy/qemu_internal_signal.h"
 
-class QemuOutPort : public OutPort<bool> {
+class QemuOutPort : public OutPort<bool>, public qemu_qdev_gpio_callbacks {
 private:
     sc_core::sc_signal<bool> *m_stub_sig = nullptr;
 
@@ -44,14 +44,14 @@ public:
         add_connection_strategy_front(m_cs);
     }
 
-    static void value_changed_handler(void *opaque, int n, int level) {
-        QemuOutPort *port = (QemuOutPort *)opaque;
-        port->sc_p = level != 0;
+    void qemu_qdev_gpio_event(sc_qemu_qdev *dev, int n, int level)
+    {
+        sc_p = !!level;
     }
 
     virtual void selected_strategy(ConnectionStrategyBase &cs) {
         if (&cs != &m_cs) {
-            m_lib->qdev_connect_gpio_out(m_qdev, m_idx, value_changed_handler, this);
+            m_lib->qdev_gpio_register_cb(m_qdev, m_idx, this);
         } else {
             /* Internal QEMU connection. Stub the useless sc_port to make it
              * connected */
