@@ -45,7 +45,7 @@ LibScQemu::~LibScQemu()
 uint32_t LibScQemu::qemu_sc_read(void *opaque, uint32_t addr,
                                         uint32_t size)
 {
-    LibScQemu *w = (LibScQemu *) opaque;
+    LibScQemu *w = reinterpret_cast<LibScQemu*>(opaque);
 
     return w->m_io_cb->qemu_io_read(addr, size);
 }
@@ -53,10 +53,25 @@ uint32_t LibScQemu::qemu_sc_read(void *opaque, uint32_t addr,
 void LibScQemu::qemu_sc_write(void *opaque, uint32_t addr,
                                      uint32_t val, uint32_t size)
 {
-    LibScQemu *w = (LibScQemu *) opaque;
+    LibScQemu *w = reinterpret_cast<LibScQemu*>(opaque);
 
     w->m_io_cb->qemu_io_write(addr, val, size);
 }
+
+void LibScQemu::qdev_gpio_event(sc_qemu_qdev *dev, int n, int level, void *opaque)
+{
+    qemu_qdev_gpio_callbacks *cb = reinterpret_cast<qemu_qdev_gpio_callbacks*>(opaque);
+
+    cb->qemu_qdev_gpio_event(dev, n, level);
+}
+
+void LibScQemu::char_dev_read(void *opaque, const uint8_t *data, int len)
+{
+    qemu_char_dev_callbacks *cb = reinterpret_cast<qemu_char_dev_callbacks*>(opaque);
+
+    cb->qemu_char_dev_read(data, len);
+}
+
 /* ---------------------------- */
 
 void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
@@ -179,6 +194,13 @@ void LibScQemu::qdev_irq_update(sc_qemu_qdev *dev, int irq_idx, int level)
     m_qemu_import->qdev_irq_update(dev, irq_idx, level);
 }
 
+void LibScQemu::qdev_gpio_register_cb(sc_qemu_qdev *dev, int gpio_idx,
+                                      qemu_qdev_gpio_callbacks *cb)
+{
+    assert(m_qemu_import);
+    m_qemu_import->qdev_gpio_register_cb(dev, gpio_idx, qdev_gpio_event, cb);
+}
+
 void LibScQemu::register_io_callback(qemu_io_callbacks &cb)
 {
     m_io_cb = &cb;
@@ -197,13 +219,6 @@ int LibScQemu::char_dev_write(sc_qemu_char_dev *dev, const uint8_t *data, int le
 {
     assert(m_qemu_import);
     return m_qemu_import->char_dev_write(dev, data, len);
-}
-
-void LibScQemu::char_dev_read(void *opaque, const uint8_t *data, int len)
-{
-    qemu_char_dev_callbacks *cb = (qemu_char_dev_callbacks *) opaque;
-
-    cb->qemu_char_dev_read(data, len);
 }
 
 void LibScQemu::char_dev_register_callbacks(sc_qemu_char_dev *dev, qemu_char_dev_callbacks *cb)

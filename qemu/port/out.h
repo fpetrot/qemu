@@ -23,11 +23,13 @@
 #include <rabbits/component/port/out.h>
 #include "qemu/connection_strategy/qemu_internal_signal.h"
 
-class QemuOutPort : public OutPort<bool> {
+class QemuOutPort : public OutPort<bool>, public qemu_qdev_gpio_callbacks {
 private:
     sc_core::sc_signal<bool> *m_stub_sig = nullptr;
 
 protected:
+    LibScQemu *m_lib;
+    sc_qemu_qdev *m_qdev;
     int m_idx;
 
     QemuInternalSignalCS m_cs;
@@ -36,12 +38,20 @@ public:
     QemuOutPort(const std::string &name, LibScQemu &lib, sc_qemu_qdev *qdev, int idx)
         : OutPort(name), m_idx(idx), m_cs(&lib, qdev, idx, QemuInternalSignalCS::OUT)
     {
+        m_lib = &lib;
+        m_qdev = qdev;
+
         add_connection_strategy_front(m_cs);
+    }
+
+    void qemu_qdev_gpio_event(sc_qemu_qdev *dev, int n, int level)
+    {
+        sc_p = !!level;
     }
 
     virtual void selected_strategy(ConnectionStrategyBase &cs) {
         if (&cs != &m_cs) {
-            LOG(APP, ERR) << "QEMU to SystemC gpio connection is not implemented\n";
+            m_lib->qdev_gpio_register_cb(m_qdev, m_idx, this);
         } else {
             /* Internal QEMU connection. Stub the useless sc_port to make it
              * connected */
