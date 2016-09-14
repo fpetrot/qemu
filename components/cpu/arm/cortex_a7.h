@@ -33,10 +33,10 @@ public:
 
     QemuCpuArmCortexA7(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
         : QemuCpuArm(name, params, c, "cortex-a7")
-        , p_irq_timer_phys("irq-timer-phys", m_lib, m_qdev, 0)
-        , p_irq_timer_virt("irq-timer-virt", m_lib, m_qdev, 1)
-        , p_irq_timer_hyp("irq-timer-hyp", m_lib, m_qdev, 2)
-        , p_irq_timer_sec("irq-timer-sec", m_lib, m_qdev, 3)
+        , p_irq_timer_phys("irq-timer-phys", m_lib, m_obj, 0)
+        , p_irq_timer_virt("irq-timer-virt", m_lib, m_obj, 1)
+        , p_irq_timer_hyp("irq-timer-hyp", m_lib, m_obj, 2)
+        , p_irq_timer_sec("irq-timer-sec", m_lib, m_obj, 3)
     {
         m_obj->set_prop_int("reset-cbar", params["cp15-cbar"].as<uint32_t>());
         m_obj->realize();

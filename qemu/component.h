@@ -30,7 +30,6 @@
 class QemuComponent : public Component {
 protected:
     LibScQemu &m_lib;
-    sc_qemu_qdev *m_qdev = nullptr;
     QemuObject *m_obj = nullptr;
 
 public:

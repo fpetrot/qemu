@@ -30,6 +30,7 @@
 template <unsigned int BUSWIDTH = 32>
 class QemuMaster : public QemuComponent, public tlm::tlm_bw_transport_if<>
 {
+
 public:
     TlmInitiatorPort<BUSWIDTH> p_bus;
 

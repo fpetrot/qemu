@@ -32,7 +32,6 @@ const string QemuInstance::CpuType::LIB[] = {
 QemuInstance::QemuInstance(ConfigManager &config)
     : m_config(config)
     , m_lib(m_config)
-    , m_next_cpuid(0)
 {
 }
 
@@ -85,5 +84,5 @@ void QemuInstance::lib_init()
     m_lib.set_insn_limit(m_discovery.insn_limit);
     m_lib.set_mips_shift(m_discovery.mips_shift);
     m_lib.set_map_whole_as(m_config.get_global_params()["report-non-mapped-access"].as<bool>());
-    m_lib.init(lib_name, m_discovery.cpu_count, m_discovery.cpu_model);
+    m_lib.init(lib_name);
 }

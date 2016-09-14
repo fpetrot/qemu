@@ -21,14 +21,15 @@
 #define _QEMU_WAPPER_QEMU_LIB_WRAPPER_H
 
 #include <string>
+#include <unordered_map>
 
 #include <inttypes.h>
 
 struct qemu_import;
 struct qemu_context;
-struct sc_qemu_qdev;
 struct sc_qemu_char_dev;
 struct sc_qemu_object;
+struct sc_qemu_io_attr;
 
 class DynLib;
 class ConfigManager;
@@ -44,14 +45,16 @@ public:
     virtual void qemu_char_dev_read(const uint8_t *data, int len) = 0;
 };
 
-class qemu_qdev_gpio_callbacks {
+class qemu_object_gpio_callbacks {
 public:
-    virtual void qemu_qdev_gpio_event(sc_qemu_qdev *dev, int n, int level) = 0;
+    virtual void qemu_object_gpio_event(sc_qemu_object *obj, int idx, int level) = 0;
 };
 
 class QemuObject;
 
 class LibScQemu {
+    friend class QemuObject;
+
 private:
     int m_insn_limit = 0;
     int m_mips_shift = 0;
@@ -63,13 +66,18 @@ private:
     DynLib *m_lib = nullptr;
 
     qemu_io_callbacks *m_io_cb = nullptr;
+    std::unordered_map<int, qemu_io_callbacks*> m_io_cbs;
 
     /* Callbacks from sc-qemu lib */
-    static uint32_t qemu_sc_read(void *opaque, uint32_t addr, uint32_t size);
+    static uint32_t qemu_sc_read(void *opaque, uint32_t addr,
+                                 uint32_t size, const sc_qemu_io_attr *attr);
+
     static void qemu_sc_write(void *opaque, uint32_t addr,
-                              uint32_t val, uint32_t size);
+                              uint32_t val, uint32_t size,
+                              const sc_qemu_io_attr *attr);
+
     static void char_dev_read(void *opaque, const uint8_t *data, int len);
-    static void qdev_gpio_event(sc_qemu_qdev *dev, int n, int level, void *opaque);
+    static void object_gpio_event(sc_qemu_object *obj, int n, int level, void *opaque);
 
 public:
     LibScQemu(ConfigManager &config);
@@ -80,7 +88,7 @@ public:
     void set_mips_shift(int mips_shift) { m_mips_shift = mips_shift; }
     void set_map_whole_as(bool map_whole_as) { m_map_whole_as = map_whole_as; }
 
-    void init(std::string lib_path, int num_cpu, std::string cpu_model);
+    void init(std::string lib_path);
     bool is_inited() const { return m_lib != NULL; }
 
     void map_io(uint32_t base, uint32_t size);
@@ -88,41 +96,11 @@ public:
 
     bool cpus_loop(int64_t* elapsed);
 
-    /* Return the qdev associated to CPU cpu_idx */
-    sc_qemu_qdev * cpu_get_qdev(int cpu_idx);
-
     /* QEMU GDB stub
      * @port: port the gdb server will be listening on. (ex: "tcp::1234") */
     void start_gdb_server(std::string port);
 
-    /* QEMU device creation and handling  */
-
-    /* Cortex-A15 private devices. Contains a GIC (interrupt controller) and
-     * generic timers.
-     * @num_irq: Number of irq lines in the GIC that is part of A15 private devices */
-    sc_qemu_qdev * qdev_create_cortex_a15_priv(int num_irq);
-
-    /* ARM GIC interrupt controller
-     * @num_irq: Number of irq lines in the GIC */
-    sc_qemu_qdev * qdev_create_arm_gic(uint32_t revision, uint32_t num_irq,
-                                       int secure_extn, uint32_t cpu_iface_id,
-                                       uint32_t min_bpr);
-
-    /* 16550 compatible UART
-     * @reg_shift: right shift applied on register access (2 -> 1 reg every 4 bytes)
-     * @baudbase:  main oscillator frequency */
-    sc_qemu_qdev * qdev_create_uart_16550(int reg_shift, int baudbase);
-
-    /* SP804 timer */
-    sc_qemu_qdev * qdev_create_sp804();
-
-    void qdev_destroy(sc_qemu_qdev *);
-    void qdev_mmio_map(sc_qemu_qdev *, int mmio_id, uint32_t addr);
-    void qdev_irq_connect(sc_qemu_qdev *src, int src_idx, sc_qemu_qdev *dst, int dst_idx);
-    void qdev_irq_update(sc_qemu_qdev *, int irq_idx, int level);
-    void qdev_gpio_register_cb(sc_qemu_qdev *, int gpio_idx, qemu_qdev_gpio_callbacks *);
-
-    void register_io_callback(qemu_io_callbacks &);
+    void register_io_callback(qemu_io_callbacks &, int cpuid);
 
     sc_qemu_char_dev *char_dev_create();
     int char_dev_write(sc_qemu_char_dev *, const uint8_t *data, int len);
@@ -136,17 +114,25 @@ public:
 };
 
 
+struct QemuGpio {
+    const char * name = nullptr;
+    int idx;
+
+    QemuGpio(const char * name, int idx) : name(name), idx(idx) {}
+    QemuGpio(int idx) : idx(idx) {}
+};
+
 class QemuObject {
 private:
     sc_qemu_object *m_obj;
-    LibScQemu &m_lib;
+    qemu_import &m_import;
 
     bool m_realized = false;
 
 public:
-    QemuObject(sc_qemu_object *obj, LibScQemu &lib)
+    QemuObject(sc_qemu_object *obj, qemu_import &import)
         : m_obj(obj)
-        , m_lib(lib)
+        , m_import(import)
     {}
 
     virtual ~QemuObject() {}
@@ -156,6 +142,13 @@ public:
     void set_prop_bool(const char *name, bool val);
     void set_prop_int(const char *name, int64_t val);
     void set_prop_str(const char *name, const char *val);
+
+    int get_cpu_id();
+
+    void mmio_map(int mmio_id, uint64_t addr);
+    void gpio_out_connect(const QemuGpio &gpio_out, QemuObject &in, const QemuGpio &gpio_in);
+    void gpio_in_set(const QemuGpio &gpio, int level);
+    void gpio_out_register_cb(const QemuGpio &gpio, qemu_object_gpio_callbacks *cb);
 };
 
 #endif
