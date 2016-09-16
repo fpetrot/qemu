@@ -26,17 +26,18 @@
 class QemuUart16550 : public QemuSlave<>
 {
 protected:
+    using QemuSlave<>::m_obj;
+
     int m_regshift;
     int m_baudbase;
-    sc_qemu_qdev *m_qdev;
 
     void do_mmio_map(const AddressRange &range);
 
 public:
-    QemuOutPort p_irq;
+    QemuOutPort *p_irq;
 
     QemuUart16550(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c);
-    virtual ~QemuUart16550() {}
+    virtual ~QemuUart16550();
 };
 
 #endif

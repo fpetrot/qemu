@@ -46,7 +46,6 @@ protected:
 
     ConfigManager &m_config;
     LibScQemu m_lib;
-    int m_next_cpuid;
 
     /* Contains regions mapped by QEMU devices.
      * These regions must be ignored when passing the address map to QEMU. */
@@ -85,11 +84,6 @@ public:
     void cpu_discover(CpuType::value architecture,
                       const std::string &model,
                       Parameters &params);
-
-    int get_next_cpuid() {
-        assert(m_next_cpuid < m_discovery.cpu_count);
-        return m_next_cpuid++;
-    }
 
     int get_num_cpu() {
         return m_discovery.cpu_count;

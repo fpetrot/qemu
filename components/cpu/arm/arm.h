@@ -28,7 +28,6 @@
 class QemuCpuArm : public QemuCpu<32> {
 protected:
     using QemuCpu<32>::m_lib;
-    using QemuCpu<32>::m_qdev;
 
 public:
     using QemuCpu<32>::p_bus;

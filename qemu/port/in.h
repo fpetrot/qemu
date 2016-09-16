@@ -26,11 +26,11 @@
 class QemuInPort : public InPort<bool> {
 private:
     sc_core::sc_signal<bool> *m_stub_sig = nullptr;
-    
+
 protected:
     LibScQemu &m_lib;
-    sc_qemu_qdev *m_qdev;
-    int m_idx;
+    QemuObject *m_obj;
+    QemuGpio m_gpio;
 
     QemuInternalSignalCS m_cs;
 
@@ -49,17 +49,17 @@ protected:
 
         for(;;) {
             sc_core::wait(ev);
-            m_lib.qdev_irq_update(m_qdev, m_idx, sc_p.read());
+            m_obj->gpio_in_set(m_gpio, sc_p.read());
         }
     }
 
 public:
-    QemuInPort(const std::string &name, LibScQemu &lib, sc_qemu_qdev *qdev, int idx)
+    QemuInPort(const std::string &name, LibScQemu &lib, QemuObject *obj, const QemuGpio &gpio)
         : InPort(name)
         , m_lib(lib)
-        , m_qdev(qdev)
-        , m_idx(idx)
-        , m_cs(&lib, qdev, idx, QemuInternalSignalCS::IN)
+        , m_obj(obj)
+        , m_gpio(gpio)
+        , m_cs(&lib, obj, gpio, QemuInternalSignalCS::IN)
     {
         add_connection_strategy_front(m_cs);
     }

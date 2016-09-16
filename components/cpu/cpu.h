@@ -32,7 +32,6 @@ template <unsigned int BUSWIDTH = 32>
 class QemuCpu : public QemuMaster<BUSWIDTH>, public qemu_io_callbacks {
 protected:
     using QemuMaster<BUSWIDTH>::m_lib;
-    using QemuMaster<BUSWIDTH>::m_qdev;
     using QemuMaster<BUSWIDTH>::m_obj;
     using QemuMaster<BUSWIDTH>::m_params;
 
@@ -146,16 +145,14 @@ public:
     QemuCpu(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c, const std::string type_name)
         : QemuMaster<BUSWIDTH>(name, params, c)
     {
-        QemuInstance &inst = QemuInstance::get(Component::get_config());
-
         m_obj = m_lib.object_new(type_name.c_str());
 
-        m_cpuid = inst.get_next_cpuid();
-        m_qdev = m_lib.cpu_get_qdev(m_cpuid);
+        m_cpuid = m_obj->get_cpu_id();
+
+        m_lib.register_io_callback(*this, m_cpuid);
 
         if (!m_cpuid) {
             SC_THREAD(mainloop_thread);
-            m_lib.register_io_callback(*this);
 
             Component::get_config().add_param_alias("gdb-server", m_params["gdb-server"]);
             std::string gdb_port = m_params["gdb-server"].template as<std::string>();
