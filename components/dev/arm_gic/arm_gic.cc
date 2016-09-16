@@ -20,8 +20,6 @@
 #include <sstream>
 #include <algorithm>
 
-#include <sc-qemu/sc_qemu.h>
-
 #include <rabbits/platform/description.h>
 #include <rabbits/logger.h>
 
@@ -31,20 +29,20 @@
 class PpiGenerator {
 private:
     LibScQemu &m_lib;
-    sc_qemu_qdev *m_qdev;
+    QemuObject *m_obj;
     int m_num_irq, m_cpu_idx;
 
     int m_cur_irq = 0;
 
 public:
-    PpiGenerator(LibScQemu& lib, sc_qemu_qdev *qdev, int num_irq, int cpu_idx)
-        : m_lib(lib), m_qdev(qdev), m_num_irq(num_irq), m_cpu_idx(cpu_idx) {}
+    PpiGenerator(LibScQemu& lib, QemuObject *obj, int num_irq, int cpu_idx)
+        : m_lib(lib), m_obj(obj), m_num_irq(num_irq), m_cpu_idx(cpu_idx) {}
 
     QemuInPort* operator()(const std::string &s) {
         QemuInPort *irq;
         const int qemu_idx = m_num_irq + 32*(m_cpu_idx-1) + m_cur_irq++;
 
-        irq = new QemuInPort(s, m_lib, m_qdev, qemu_idx);
+        irq = new QemuInPort(s, m_lib, m_obj, qemu_idx);
         irq->set_autoconnect_to(0);
 
         return irq;
@@ -54,11 +52,11 @@ public:
 class SpiGenerator {
 private:
     LibScQemu &m_lib;
-    sc_qemu_qdev *m_qdev;
+    QemuObject *m_obj;
 
 public:
-    SpiGenerator(LibScQemu& lib, sc_qemu_qdev *qdev)
-        : m_lib(lib), m_qdev(qdev) {}
+    SpiGenerator(LibScQemu& lib, QemuObject *obj)
+        : m_lib(lib), m_obj(obj) {}
 
     QemuInPort* operator()(const std::string &s, int idx) {
         std::stringstream ss;
@@ -66,7 +64,7 @@ public:
 
         ss << s << (idx);
 
-        irq = new QemuInPort(ss.str(), m_lib, m_qdev, idx);
+        irq = new QemuInPort(ss.str(), m_lib, m_obj, idx);
         irq->set_autoconnect_to(0);
 
         return irq;
@@ -84,33 +82,40 @@ QemuArmGic::QemuArmGic(sc_core::sc_module_name name, const Parameters &params, C
     const uint32_t min_bpr = params["min-bpr"].as<uint32_t>();
     const int num_cpu = QemuInstance::get(Component::get_config()).get_num_cpu();
 
-    m_qdev = m_lib.qdev_create_arm_gic(revision, num_irq, has_sec_extn,
-                                       cpu_if_id, min_bpr);
+    m_obj = m_lib.object_new("arm_gic");
 
-    SpiGenerator spi_gen(m_lib, m_qdev);
+    m_obj->set_prop_int("num-cpu", num_cpu);
+    m_obj->set_prop_int("revision", revision);
+    m_obj->set_prop_int("num-irq", num_irq);
+    m_obj->set_prop_bool("has-security-extensions", has_sec_extn);
+    m_obj->set_prop_int("cpu-iface-id", cpu_if_id);
+    m_obj->set_prop_int("min-bpr", min_bpr);
+
+    m_obj->realize();
+
+    SpiGenerator spi_gen(m_lib, m_obj);
     p_spis = new VectorPort<QemuInPort>("spi", num_irq - 32, spi_gen);
 
     for (int i = 0; i < num_cpu; i++) {
-        PpiGenerator ppi_gen(m_lib, m_qdev, num_irq, i);
+        PpiGenerator ppi_gen(m_lib, m_obj, num_irq, i);
         std::stringstream ss;
         ss << "cpu" << i;
 
         p_ppis.push_back(new VectorPort<QemuInPort>(ss.str() + "-ppi", 32, ppi_gen));
 
-        p_irqs_to_cpus.push_back(new QemuOutPort(ss.str() + "-irq", m_lib,
-                                                 m_qdev, i));
-        p_irqs_to_cpus.push_back(new QemuOutPort(ss.str() + "-fiq", m_lib,
-                                                 m_qdev, num_cpu + i));
+        p_irqs_to_cpus.push_back(new QemuOutPort(ss.str() + "-irq", m_lib, m_obj,
+                                                 QemuGpio("sysbus-irq", i)));
+        p_irqs_to_cpus.push_back(new QemuOutPort(ss.str() + "-fiq", m_lib, m_obj,
+                                                 QemuGpio("sysbus-irq", num_cpu + i)));
     }
 }
 
 QemuArmGic::~QemuArmGic()
 {
-    m_lib.qdev_destroy(m_qdev);
 }
 
 void QemuArmGic::do_mmio_map(const AddressRange &range)
 {
-    m_lib.qdev_mmio_map(m_qdev, 0, range.begin() + 0x1000);  /* GIC distributor */
-    m_lib.qdev_mmio_map(m_qdev, 1, range.begin() + 0x2000);  /* GIC CPU interface */
+    m_obj->mmio_map(0, range.begin() + 0x1000);  /* GIC distributor */
+    m_obj->mmio_map(1, range.begin() + 0x2000);  /* GIC CPU interface */
 }

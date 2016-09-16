@@ -26,7 +26,7 @@
 #include <rabbits/rabbits_exception.h>
 
 #include <cassert>
-#include <sc-qemu/sc_qemu.h>
+#include <sc-qemu/sc-qemu.h>
 
 
 LibScQemu::LibScQemu(ConfigManager &config)
@@ -43,23 +43,41 @@ LibScQemu::~LibScQemu()
  * Callbacks from sc-qemu libs
  * ---------------------------- */
 uint32_t LibScQemu::qemu_sc_read(void *opaque, uint32_t addr,
-                                        uint32_t size)
+                                 uint32_t size, const sc_qemu_io_attr *attr)
 {
-    LibScQemu *w = (LibScQemu *) opaque;
+    LibScQemu *w = reinterpret_cast<LibScQemu*>(opaque);
+    const int i = attr->cpuid;
 
-    return w->m_io_cb->qemu_io_read(addr, size);
+    return w->m_io_cbs[i]->qemu_io_read(addr, size);
 }
 
 void LibScQemu::qemu_sc_write(void *opaque, uint32_t addr,
-                                     uint32_t val, uint32_t size)
+                              uint32_t val, uint32_t size,
+                              const sc_qemu_io_attr *attr)
 {
-    LibScQemu *w = (LibScQemu *) opaque;
+    LibScQemu *w = reinterpret_cast<LibScQemu*>(opaque);
+    const int i = attr->cpuid;
 
-    w->m_io_cb->qemu_io_write(addr, val, size);
+    w->m_io_cbs[i]->qemu_io_write(addr, val, size);
 }
+
+void LibScQemu::object_gpio_event(sc_qemu_object *obj, int n, int level, void *opaque)
+{
+    qemu_object_gpio_callbacks *cb = reinterpret_cast<qemu_object_gpio_callbacks*>(opaque);
+
+    cb->qemu_object_gpio_event(obj, n, level);
+}
+
+void LibScQemu::char_dev_read(void *opaque, const uint8_t *data, int len)
+{
+    qemu_char_dev_callbacks *cb = reinterpret_cast<qemu_char_dev_callbacks*>(opaque);
+
+    cb->qemu_char_dev_read(data, len);
+}
+
 /* ---------------------------- */
 
-void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
+void LibScQemu::init(std::string libname)
 {
     sc_qemu_init_struct s;
     sc_qemu_init_fn qemu_init = NULL;
@@ -84,8 +102,6 @@ void LibScQemu::init(std::string libname, int num_cpu, std::string cpu_model)
     s.sc_import.read = qemu_sc_read;
 
     s.q_import = m_qemu_import;
-    s.cpu_model = cpu_model.c_str();
-    s.num_cpu = num_cpu;
     s.opaque = this;
     s.max_run_time = m_insn_limit;
     s.cpu_mips_shift = m_mips_shift;
@@ -112,76 +128,15 @@ bool LibScQemu::cpus_loop(int64_t *elapsed)
     return m_qemu_import->cpu_loop(m_qemu_ctx, elapsed);
 }
 
-sc_qemu_qdev * LibScQemu::cpu_get_qdev(int cpu_idx)
-{
-    assert(m_qemu_import);
-    return m_qemu_import->cpu_get_qdev(m_qemu_ctx, cpu_idx);
-}
-
 void LibScQemu::start_gdb_server(std::string port)
 {
     assert(m_qemu_import);
     m_qemu_import->start_gdbserver(m_qemu_ctx, port.c_str());
 }
 
-/*
- * QEMU devices
- */
-sc_qemu_qdev * LibScQemu::qdev_create_cortex_a15_priv(int num_int)
+void LibScQemu::register_io_callback(qemu_io_callbacks &cb, int cpuid)
 {
-    assert(m_qemu_import);
-    uint32_t i = num_int;
-    return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_ARM_A15PRIV, i);
-}
-
-sc_qemu_qdev * LibScQemu::qdev_create_arm_gic(uint32_t revision, uint32_t num_irq,
-                                              int secure_extn, uint32_t cpu_iface_id,
-                                              uint32_t min_bpr)
-{
-    assert(m_qemu_import);
-    return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_ARM_GIC, revision, num_irq,
-                                      secure_extn, cpu_iface_id, min_bpr);
-}
-
-sc_qemu_qdev * LibScQemu::qdev_create_uart_16550(int reg_shift, int baudbase)
-{
-    assert(m_qemu_import);
-    uint32_t r = reg_shift;
-    uint32_t b = baudbase;
-    return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_16550, r, b);
-}
-
-sc_qemu_qdev * LibScQemu::qdev_create_sp804()
-{
-    assert(m_qemu_import);
-    return m_qemu_import->qdev_create(m_qemu_ctx, SC_QDEV_SP804);
-}
-
-void LibScQemu::qdev_destroy(sc_qemu_qdev *dev)
-{}
-
-void LibScQemu::qdev_mmio_map(sc_qemu_qdev *dev, int mmio_id, uint32_t addr)
-{
-    assert(m_qemu_import);
-    m_qemu_import->qdev_mmio_map(dev, mmio_id, addr);
-}
-
-void LibScQemu::qdev_irq_connect(sc_qemu_qdev *src, int src_idx,
-                                        sc_qemu_qdev *dst, int dst_idx)
-{
-    assert(m_qemu_import);
-    m_qemu_import->qdev_irq_connect(src, src_idx, dst, dst_idx);
-}
-
-void LibScQemu::qdev_irq_update(sc_qemu_qdev *dev, int irq_idx, int level)
-{
-    assert(m_qemu_import);
-    m_qemu_import->qdev_irq_update(dev, irq_idx, level);
-}
-
-void LibScQemu::register_io_callback(qemu_io_callbacks &cb)
-{
-    m_io_cb = &cb;
+    m_io_cbs[cpuid] = &cb;
 }
 
 sc_qemu_char_dev * LibScQemu::char_dev_create()
@@ -199,13 +154,6 @@ int LibScQemu::char_dev_write(sc_qemu_char_dev *dev, const uint8_t *data, int le
     return m_qemu_import->char_dev_write(dev, data, len);
 }
 
-void LibScQemu::char_dev_read(void *opaque, const uint8_t *data, int len)
-{
-    qemu_char_dev_callbacks *cb = (qemu_char_dev_callbacks *) opaque;
-
-    cb->qemu_char_dev_read(data, len);
-}
-
 void LibScQemu::char_dev_register_callbacks(sc_qemu_char_dev *dev, qemu_char_dev_callbacks *cb)
 {
     assert(m_qemu_import);
@@ -215,47 +163,59 @@ void LibScQemu::char_dev_register_callbacks(sc_qemu_char_dev *dev, qemu_char_dev
 QemuObject * LibScQemu::object_new(const char *type_name)
 {
     sc_qemu_object *obj =  m_qemu_import->object_new(m_qemu_ctx, type_name);
-    QemuObject *ret = new QemuObject(obj, *this);
+    QemuObject *ret = new QemuObject(obj, *m_qemu_import);
 
     return ret;
 }
 
-void LibScQemu::object_set_bool(sc_qemu_object *obj, bool val, const char *name)
-{
-    assert(m_qemu_import);
-    m_qemu_import->object_property_set_bool(obj, val, name);
-}
 
-void LibScQemu::object_set_int(sc_qemu_object *obj, int64_t val, const char *name)
-{
-    assert(m_qemu_import);
-    m_qemu_import->object_property_set_int(obj, val, name);
-}
-
-void LibScQemu::object_set_str(sc_qemu_object *obj, const char *val, const char *name)
-{
-    assert(m_qemu_import);
-    m_qemu_import->object_property_set_str(obj, val, name);
-}
+/* ---------------------------- */
 
 
 void QemuObject::realize()
 {
-    m_lib.object_set_bool(m_obj, true, "realized");
+    m_import.object_property_set_bool(m_obj, true, "realized");
     m_realized = true;
 }
 
 void QemuObject::set_prop_bool(const char *name, bool val)
 {
-    m_lib.object_set_bool(m_obj, val, name);
+    m_import.object_property_set_bool(m_obj, val, name);
 }
 
 void QemuObject::set_prop_int(const char *name, int64_t val)
 {
-    m_lib.object_set_int(m_obj, val, name);
+    m_import.object_property_set_int(m_obj, val, name);
 }
 
 void QemuObject::set_prop_str(const char *name, const char *val)
 {
-    m_lib.object_set_str(m_obj, val, name);
+    m_import.object_property_set_str(m_obj, val, name);
+}
+
+int QemuObject::get_cpu_id()
+{
+    return m_import.cpu_get_id(m_obj);
+}
+
+void QemuObject::mmio_map(int mmio_id, uint64_t addr)
+{
+    m_import.object_mmio_map(m_obj, mmio_id, addr);
+}
+
+void QemuObject::gpio_out_connect(const QemuGpio &gpio_out, QemuObject &in, const QemuGpio &gpio_in)
+{
+    m_import.object_gpio_connect(m_obj, gpio_out.name, gpio_out.idx,
+                                 in.m_obj, gpio_in.name, gpio_in.idx);
+}
+
+void QemuObject::gpio_in_set(const QemuGpio &gpio, int level)
+{
+    m_import.object_gpio_update(m_obj, gpio.name, gpio.idx, level);
+}
+
+void QemuObject::gpio_out_register_cb(const QemuGpio &gpio, qemu_object_gpio_callbacks *cb)
+{
+    m_import.object_gpio_register_cb(m_obj, gpio.name, gpio.idx,
+                                     LibScQemu::object_gpio_event, cb);
 }

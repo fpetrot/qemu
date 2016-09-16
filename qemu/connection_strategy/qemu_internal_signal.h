@@ -32,7 +32,7 @@ public:
     enum Direction { IN, OUT };
 
 private:
-    typedef std::pair<sc_qemu_qdev*, int> QemuSignal;
+    typedef std::pair<QemuObject*, QemuGpio> QemuSignal;
 
     LibScQemu *m_qemu_inst;
 
@@ -40,8 +40,8 @@ private:
     Direction m_dir;
 
 public:
-    QemuInternalSignalCS(LibScQemu *qemu_inst, sc_qemu_qdev *qdev, int gpio_idx, Direction dir)
-        : m_qemu_inst(qemu_inst), m_sig(std::make_pair(qdev, gpio_idx)), m_dir(dir) {}
+    QemuInternalSignalCS(LibScQemu *qemu_inst, QemuObject *obj, QemuGpio gpio, Direction dir)
+        : m_qemu_inst(qemu_inst), m_sig(std::make_pair(obj, gpio)), m_dir(dir) {}
 
     virtual ~QemuInternalSignalCS() {}
 
@@ -50,7 +50,7 @@ public:
         QemuSignal *in, *out;
 
         if (cs.m_qemu_inst != m_qemu_inst) {
-            /* Can't connect two signals from two different QEMU instances. 
+            /* Can't connect two signals from two different QEMU instances.
              * Let the SystemC world CS connect them. */
             return BindingResult::BINDING_TRY_NEXT;
         }
@@ -69,7 +69,7 @@ public:
         }
 
         LOG(APP, DBG) << "Internal QEMU gpio connection\n";
-        m_qemu_inst->qdev_irq_connect(out->first, out->second, in->first, in->second);
+        out->first->gpio_out_connect(out->second, *(in->first), in->second);
 
         return BindingResult::BINDING_OK;
     }

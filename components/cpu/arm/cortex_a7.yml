@@ -11,3 +11,4 @@ component:
       description: Configuration base address register.
       type: uint32
       default: 0
+      advanced: true

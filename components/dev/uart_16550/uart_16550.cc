@@ -25,14 +25,21 @@ QemuUart16550::QemuUart16550(sc_core::sc_module_name name, const Parameters &par
     : QemuSlave(name, params, c)
     , m_regshift(params["regshift"].as<int>())
     , m_baudbase(params["baudbase"].as<int>())
-    , m_qdev(m_lib.qdev_create_uart_16550(m_regshift, m_baudbase))
-    , p_irq("irq", m_lib, m_qdev, 0)
 {
-    QemuSlave::m_qdev = m_qdev;
+    m_obj = m_lib.object_new("serial");
+    m_obj->set_prop_int("it-shift", m_regshift);
+    m_obj->set_prop_int("baudbase", m_baudbase);
+    m_obj->realize();
+
+    p_irq = new QemuOutPort("irq", m_lib, m_obj, 0);
+}
+
+QemuUart16550::~QemuUart16550() {
+    delete p_irq;
 }
 
 void QemuUart16550::do_mmio_map(const AddressRange &range)
 {
-    m_lib.qdev_mmio_map(m_qdev, 0, range.begin());
+    m_obj->mmio_map(0, range.begin());
 }
 
