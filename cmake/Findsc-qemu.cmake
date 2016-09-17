@@ -9,7 +9,7 @@ set(_SC_QEMU_PATHS PATHS
 	$ENV{SC_QEMU_PREFIX}
 )
 
-find_path(SC_QEMU_INCLUDE_DIR sc_qemu.h ${_SC_QEMU_PATHS} PATH_SUFFIXES include/sc-qemu)
+find_path(SC_QEMU_INCLUDE_DIR sc-qemu.h ${_SC_QEMU_PATHS} PATH_SUFFIXES include/sc-qemu)
 
 if (NOT SC_QEMU_LIBRARIES)
 	find_library(SC_QEMU_LIBRARY_RELEASE NAMES qemu-system-arm ${_SC_QEMU_PATHS} PATH_SUFFIXES lib/rabbits)
@@ -17,7 +17,7 @@ if (NOT SC_QEMU_LIBRARIES)
 	SELECT_LIBRARY_CONFIGURATIONS(SC_QEMU)
 endif ()
 
-if (SC_QEMU_INCLUDE_DIR AND EXISTS "${SC_QEMU_INCLUDE_DIR}/sc-qemu/sc_qemu.h")
+if (SC_QEMU_INCLUDE_DIR AND EXISTS "${SC_QEMU_INCLUDE_DIR}/sc-qemu/sc-qemu.h")
 	set(SC_QEMU_VERSION "1.0.0")
 endif ()
 
