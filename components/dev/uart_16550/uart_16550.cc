@@ -24,14 +24,14 @@
 QemuUart16550::QemuUart16550(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
     : QemuSlave(name, params, c)
     , m_regshift(params["regshift"].as<int>())
-    , m_baudbase(params["baudbase"].as<int>())
+    , m_baudbase(params["clk"].as<int>())
 {
     m_obj = m_lib.object_new("serial");
     m_obj->set_prop_int("it-shift", m_regshift);
     m_obj->set_prop_int("baudbase", m_baudbase);
     m_obj->realize();
 
-    p_irq = new QemuOutPort("irq", m_lib, m_obj, 0);
+    p_irq = new QemuOutPort("irq", m_lib, m_obj, QemuGpio("sysbus-irq", 0));
 }
 
 QemuUart16550::~QemuUart16550() {

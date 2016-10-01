@@ -6,7 +6,7 @@ component:
   description: UART 16550 compatible provided by QEMU.
   priority: -10
   parameters:
-    baudbase:
+    clk:
       type: integer
       default: 460800
       description: Base Baud value.
