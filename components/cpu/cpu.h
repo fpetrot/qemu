@@ -76,7 +76,7 @@ protected:
         /* Ensure dmi region is included into region. Otherwise, the DMI info
          * are buggy and we should report it. */
         if (info.range.begin() < region.begin() || info.range.end() > region.end()) {
-            MLOG(APP, ERR) << "Buggy DMI info for address range " << region << ". Falling back to I/O\n";
+            MLOG(APP, DBG) << "Buggy DMI info for address range " << region << ". Falling back to I/O\n";
             map_as_io(region);
             return false;
         }
