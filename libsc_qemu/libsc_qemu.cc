@@ -68,13 +68,6 @@ void LibScQemu::object_gpio_event(sc_qemu_object *obj, int n, int level, void *o
     cb->qemu_object_gpio_event(obj, n, level);
 }
 
-void LibScQemu::char_dev_read(void *opaque, const uint8_t *data, int len)
-{
-    qemu_char_dev_callbacks *cb = reinterpret_cast<qemu_char_dev_callbacks*>(opaque);
-
-    cb->qemu_char_dev_read(data, len);
-}
-
 /* ---------------------------- */
 
 void LibScQemu::init(std::string libname)
@@ -137,27 +130,6 @@ void LibScQemu::start_gdb_server(std::string port)
 void LibScQemu::register_io_callback(qemu_io_callbacks &cb, int cpuid)
 {
     m_io_cbs[cpuid] = &cb;
-}
-
-sc_qemu_char_dev * LibScQemu::char_dev_create()
-{
-    assert(m_qemu_import);
-    sc_qemu_char_dev * ret;
-    ret = m_qemu_import->char_dev_create(m_qemu_ctx);
-
-    return ret;
-}
-
-int LibScQemu::char_dev_write(sc_qemu_char_dev *dev, const uint8_t *data, int len)
-{
-    assert(m_qemu_import);
-    return m_qemu_import->char_dev_write(dev, data, len);
-}
-
-void LibScQemu::char_dev_register_callbacks(sc_qemu_char_dev *dev, qemu_char_dev_callbacks *cb)
-{
-    assert(m_qemu_import);
-    m_qemu_import->char_dev_register_read(dev, char_dev_read, cb);
 }
 
 QemuObject * LibScQemu::object_new(const char *type_name)

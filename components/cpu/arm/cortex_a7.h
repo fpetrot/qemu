@@ -39,7 +39,7 @@ public:
         , p_irq_timer_sec("irq-timer-sec", m_lib, m_obj, 3)
     {
         m_obj->set_prop_int("reset-cbar", params["cp15-cbar"].as<uint32_t>());
-        m_obj->realize();
+        realize();
     }
 
     static void discover(const std::string &name, Parameters &params, ConfigManager &config)

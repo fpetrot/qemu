@@ -139,14 +139,9 @@ protected:
         }
     }
 
-public:
-    SC_HAS_PROCESS(QemuCpu);
-
-    QemuCpu(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c, const std::string type_name)
-        : QemuMaster<BUSWIDTH>(name, params, c)
+    void realize()
     {
-        m_obj = m_lib.object_new(type_name.c_str());
-
+        m_obj->realize();
         m_cpuid = m_obj->get_cpu_id();
 
         m_lib.register_io_callback(*this, m_cpuid);
@@ -164,6 +159,15 @@ public:
         } else {
             m_params["gdb-server"].set_advanced();
         }
+    }
+
+public:
+    SC_HAS_PROCESS(QemuCpu);
+
+    QemuCpu(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c, const std::string type_name)
+        : QemuMaster<BUSWIDTH>(name, params, c)
+    {
+        m_obj = m_lib.object_new(type_name.c_str());
     }
 
     virtual ~QemuCpu() {}
