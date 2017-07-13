@@ -27,7 +27,6 @@
 
 struct qemu_import;
 struct qemu_context;
-struct sc_qemu_char_dev;
 struct sc_qemu_object;
 struct sc_qemu_io_attr;
 
@@ -38,11 +37,6 @@ class qemu_io_callbacks {
 public:
     virtual uint32_t qemu_io_read(uint32_t addr, uint32_t size) = 0;
     virtual void qemu_io_write(uint32_t addr, uint32_t val, uint32_t size) = 0;
-};
-
-class qemu_char_dev_callbacks {
-public:
-    virtual void qemu_char_dev_read(const uint8_t *data, int len) = 0;
 };
 
 class qemu_object_gpio_callbacks {
@@ -76,7 +70,6 @@ private:
                               uint32_t val, uint32_t size,
                               const sc_qemu_io_attr *attr);
 
-    static void char_dev_read(void *opaque, const uint8_t *data, int len);
     static void object_gpio_event(sc_qemu_object *obj, int n, int level, void *opaque);
 
 public:
@@ -101,10 +94,6 @@ public:
     void start_gdb_server(std::string port);
 
     void register_io_callback(qemu_io_callbacks &, int cpuid);
-
-    sc_qemu_char_dev *char_dev_create();
-    int char_dev_write(sc_qemu_char_dev *, const uint8_t *data, int len);
-    void char_dev_register_callbacks(sc_qemu_char_dev *, qemu_char_dev_callbacks *);
 
     QemuObject * object_new(const char *type_name);
 
