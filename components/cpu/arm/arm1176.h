@@ -27,7 +27,11 @@
 class QemuCpuArm1176 : public QemuCpuArm {
 public:
     QemuCpuArm1176(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
-        : QemuCpuArm(name, params, c, "arm1176") {}
+        : QemuCpuArm(name, params, c, "arm1176")
+    {
+        realize();
+    }
+
 
     static void discover(const std::string &name, Parameters &params, ConfigManager &config)
     {
