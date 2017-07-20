@@ -29,6 +29,7 @@
 class QemuInternalSignalCS : public ConnectionStrategy<QemuInternalSignalCS> {
 public:
     using typename ConnectionStrategyBase::BindingResult;
+    using typename ConnectionStrategyBase::ConnectionInfo;
     enum Direction { IN, OUT };
 
 private:
@@ -45,7 +46,7 @@ public:
 
     virtual ~QemuInternalSignalCS() {}
 
-    virtual BindingResult bind_peer(QemuInternalSignalCS &cs, PlatformDescription &d)
+    virtual BindingResult bind_peer(QemuInternalSignalCS &cs, ConnectionInfo &info, PlatformDescription &d)
     {
         QemuSignal *in, *out;
 
@@ -74,11 +75,13 @@ public:
         return BindingResult::BINDING_OK;
     }
 
-    virtual BindingResult bind_hierarchical(QemuInternalSignalCS &parent_cs)
+    virtual BindingResult bind_hierarchical(QemuInternalSignalCS &parent_cs, ConnectionInfo &info)
     {
         /* Not implemented */
         LOG(APP, ERR) << "QEMU signals hierarchical binding not implemented\n";
         return BindingResult::BINDING_ERROR;
     }
+
+    virtual const char * get_typeid() const { return "qemu-signal"; }
 };
 #endif
