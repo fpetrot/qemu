@@ -150,12 +150,6 @@ protected:
             SC_THREAD(mainloop_thread);
 
             Component::get_config().add_param_alias("gdb-server", m_params["gdb-server"]);
-            std::string gdb_port = m_params["gdb-server"].template as<std::string>();
-
-            if (gdb_port != "") {
-                MLOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
-                m_lib.start_gdb_server("tcp::" + gdb_port);
-            }
         } else {
             m_params["gdb-server"].set_advanced();
         }
@@ -191,6 +185,13 @@ public:
 
         if (!m_cpuid) {
             declare_memory_regions();
+
+            std::string gdb_port = m_params["gdb-server"].template as<std::string>();
+
+            if (gdb_port != "") {
+                MLOG(APP, INF) << "Starting gdb server on port " << gdb_port << "\n";
+                m_lib.start_gdb_server("tcp::" + gdb_port);
+            }
         }
     }
 
