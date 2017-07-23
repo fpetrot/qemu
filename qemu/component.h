@@ -40,7 +40,13 @@ public:
         : Component(name, params, c), m_lib(QemuInstance::get(get_config()).get_lib())
     {}
 
-    virtual ~QemuComponent() {}
+    virtual ~QemuComponent()
+    {
+        if (m_obj) {
+            delete m_obj;
+            m_obj = nullptr;
+        }
+    }
 };
 
 #endif

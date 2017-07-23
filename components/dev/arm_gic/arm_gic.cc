@@ -112,6 +112,15 @@ QemuArmGic::QemuArmGic(sc_core::sc_module_name name, const Parameters &params, C
 
 QemuArmGic::~QemuArmGic()
 {
+    for (auto *p: p_irqs_to_cpus) {
+        delete p;
+    }
+
+    for (auto *p: p_ppis) {
+        delete p;
+    }
+
+    delete p_spis;
 }
 
 void QemuArmGic::do_mmio_map(const AddressRange &range)
