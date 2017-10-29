@@ -115,10 +115,10 @@ void LibScQemu::map_dmi(uint32_t base, uint32_t size, void *data, bool readonly)
     m_qemu_import->map_dmi(m_qemu_ctx, base, size, data, readonly);
 }
 
-bool LibScQemu::cpus_loop(int64_t *elapsed)
+bool LibScQemu::cpus_loop(int64_t *elapsed, bool *has_work)
 {
     assert(m_qemu_import);
-    return m_qemu_import->cpu_loop(m_qemu_ctx, elapsed);
+    return m_qemu_import->cpu_loop(m_qemu_ctx, elapsed, has_work);
 }
 
 void LibScQemu::start_gdb_server(std::string port)

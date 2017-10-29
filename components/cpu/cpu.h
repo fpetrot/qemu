@@ -40,19 +40,26 @@ public:
 
 protected:
     int m_cpuid;
+    sc_core::sc_event_or_list m_external_ev;
 
     void mainloop_thread() {
-        bool qemu_want_quit = false;
+        bool qemu_has_work = false;
+        bool qemu_wants_quit = false;
         int64_t elapsed;
 
         for(;;) {
-            qemu_want_quit = m_lib.cpus_loop(&elapsed);
+            qemu_wants_quit = m_lib.cpus_loop(&elapsed, &qemu_has_work);
 
-            if(qemu_want_quit) {
+            if (qemu_wants_quit) {
                 sc_core::sc_stop();
+                break;
             }
 
-            sc_core::wait(elapsed, sc_core::SC_NS);
+            if (!qemu_has_work) {
+                sc_core::wait(m_external_ev);
+            } else {
+                sc_core::wait(elapsed, sc_core::SC_NS);
+            }
         }
     }
 

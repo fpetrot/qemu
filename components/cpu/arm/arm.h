@@ -38,6 +38,8 @@ public:
 
     QemuCpuArm(sc_core::sc_module_name name, const Parameters &params,
                ConfigManager &c, const std::string & model);
+
+    virtual void end_of_elaboration();
 };
 
 #endif

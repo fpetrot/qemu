@@ -33,3 +33,10 @@ QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, const Parameters &params,
 {
 }
 
+void QemuCpuArm::end_of_elaboration()
+{
+    QemuCpu<32>::end_of_elaboration();
+
+    m_external_ev |= p_in_irq.sc_p.default_event();
+    m_external_ev |= p_in_fiq.sc_p.default_event();
+}

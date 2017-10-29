@@ -87,7 +87,7 @@ public:
     void map_io(uint32_t base, uint32_t size);
     void map_dmi(uint32_t base, uint32_t size, void *data, bool readonly = false);
 
-    bool cpus_loop(int64_t* elapsed);
+    bool cpus_loop(int64_t* elapsed, bool *has_work);
 
     /* QEMU GDB stub
      * @port: port the gdb server will be listening on. (ex: "tcp::1234") */
