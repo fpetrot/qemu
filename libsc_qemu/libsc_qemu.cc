@@ -140,6 +140,16 @@ QemuObject * LibScQemu::object_new(const char *type_name)
     return ret;
 }
 
+QemuObject * LibScQemu::object_get_root_mr()
+{
+    if (m_root_mr == nullptr) {
+        sc_qemu_object *obj = m_qemu_import->object_get_root_mr(m_qemu_ctx);
+        m_root_mr = new QemuObject(obj, *m_qemu_import);
+    }
+
+    return m_root_mr;
+}
+
 
 /* ---------------------------- */
 

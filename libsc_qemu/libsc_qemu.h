@@ -58,6 +58,7 @@ private:
     qemu_context *m_qemu_ctx = nullptr;
     qemu_import *m_qemu_import = nullptr;
     DynLib *m_lib = nullptr;
+    QemuObject *m_root_mr = nullptr;
 
     qemu_io_callbacks *m_io_cb = nullptr;
     std::unordered_map<int, qemu_io_callbacks*> m_io_cbs;
@@ -96,6 +97,7 @@ public:
     void register_io_callback(qemu_io_callbacks &, int cpuid);
 
     QemuObject * object_new(const char *type_name);
+    QemuObject * object_get_root_mr();
 };
 
 
