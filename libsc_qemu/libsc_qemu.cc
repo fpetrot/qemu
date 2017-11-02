@@ -165,6 +165,11 @@ void QemuObject::set_prop_str(const char *name, const char *val)
     m_import.object_property_set_str(m_obj, val, name);
 }
 
+void QemuObject::set_prop_link(const char *name, QemuObject *link)
+{
+    m_import.object_property_set_link(m_obj, link->m_obj, name);
+}
+
 int QemuObject::get_cpu_id()
 {
     return m_import.cpu_get_id(m_obj);

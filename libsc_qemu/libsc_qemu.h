@@ -96,10 +96,6 @@ public:
     void register_io_callback(qemu_io_callbacks &, int cpuid);
 
     QemuObject * object_new(const char *type_name);
-
-    void object_set_bool(sc_qemu_object *obj, bool val, const char *name);
-    void object_set_int(sc_qemu_object *obj, int64_t val, const char *name);
-    void object_set_str(sc_qemu_object *obj, const char *val, const char *name);
 };
 
 
@@ -131,6 +127,7 @@ public:
     void set_prop_bool(const char *name, bool val);
     void set_prop_int(const char *name, int64_t val);
     void set_prop_str(const char *name, const char *val);
+    void set_prop_link(const char *name, QemuObject *link);
 
     int get_cpu_id();
 
