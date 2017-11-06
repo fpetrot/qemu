@@ -29,7 +29,6 @@ QemuCpuArm::QemuCpuArm(sc_core::sc_module_name name, const Parameters &params,
                        ConfigManager &c, const std::string & model)
     : QemuCpu<32>(name, params, c, model + "-arm-cpu")
     , p_in_irq("irq", m_lib, m_obj, 0)
-    , p_in_fiq("fiq", m_lib, m_obj, 1)
 {
 }
 
@@ -38,5 +37,18 @@ void QemuCpuArm::end_of_elaboration()
     QemuCpu<32>::end_of_elaboration();
 
     m_external_ev |= p_in_irq.sc_p.default_event();
+}
+
+QemuCpuArmWithFiq::QemuCpuArmWithFiq(sc_core::sc_module_name name, const Parameters &params,
+                                     ConfigManager &c, const std::string & model)
+    : QemuCpuArm(name, params, c, model)
+    , p_in_fiq("fiq", m_lib, m_obj, 1)
+{}
+
+void QemuCpuArmWithFiq::end_of_elaboration()
+{
+    QemuCpuArm::end_of_elaboration();
+
     m_external_ev |= p_in_fiq.sc_p.default_event();
 }
+

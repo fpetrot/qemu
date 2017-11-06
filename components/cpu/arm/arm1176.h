@@ -24,10 +24,10 @@
 
 #include "qemu/port/out.h"
 
-class QemuCpuArm1176 : public QemuCpuArm {
+class QemuCpuArm1176 : public QemuCpuArmWithFiq {
 public:
     QemuCpuArm1176(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
-        : QemuCpuArm(name, params, c, "arm1176")
+        : QemuCpuArmWithFiq(name, params, c, "arm1176")
     {
         realize();
     }

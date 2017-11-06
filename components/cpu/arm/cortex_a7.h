@@ -24,7 +24,7 @@
 
 #include "qemu/port/out.h"
 
-class QemuCpuArmCortexA7 : public QemuCpuArm {
+class QemuCpuArmCortexA7 : public QemuCpuArmWithFiq {
 public:
     QemuOutPort p_irq_timer_phys;
     QemuOutPort p_irq_timer_virt;
@@ -32,7 +32,7 @@ public:
     QemuOutPort p_irq_timer_sec;
 
     QemuCpuArmCortexA7(sc_core::sc_module_name name, const Parameters &params, ConfigManager &c)
-        : QemuCpuArm(name, params, c, "cortex-a7")
+        : QemuCpuArmWithFiq(name, params, c, "cortex-a7")
         , p_irq_timer_phys("irq-timer-phys", m_lib, m_obj, 0)
         , p_irq_timer_virt("irq-timer-virt", m_lib, m_obj, 1)
         , p_irq_timer_hyp("irq-timer-hyp", m_lib, m_obj, 2)

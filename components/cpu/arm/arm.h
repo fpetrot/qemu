@@ -25,6 +25,14 @@
 #include "../cpu.h"
 #include "qemu/port/in.h"
 
+/* ARM CPU sub-class modeling
+ * For now we adopt a rough model:
+ *   - CPUs having FIQ
+ *   - CPUs not having FIQ
+ *
+ * This model can be refined when adding new CPUs if necessary.
+ */
+
 class QemuCpuArm : public QemuCpu<32> {
 protected:
     using QemuCpu<32>::m_lib;
@@ -34,10 +42,25 @@ public:
 
 public:
     QemuInPort p_in_irq;
-    QemuInPort p_in_fiq;
 
     QemuCpuArm(sc_core::sc_module_name name, const Parameters &params,
                ConfigManager &c, const std::string & model);
+
+    virtual void end_of_elaboration();
+};
+
+class QemuCpuArmWithFiq : public QemuCpuArm {
+protected:
+    using QemuCpu<32>::m_lib;
+
+public:
+    using QemuCpu<32>::p_bus;
+
+public:
+    QemuInPort p_in_fiq;
+
+    QemuCpuArmWithFiq(sc_core::sc_module_name name, const Parameters &params,
+                      ConfigManager &c, const std::string & model);
 
     virtual void end_of_elaboration();
 };
