@@ -40,6 +40,13 @@ public:
         : Component(name, params, c), m_lib(QemuInstance::get(get_config()).get_lib())
     {}
 
+    QemuComponent(sc_core::sc_module_name name, const Parameters &params,
+                  ConfigManager &c, const char * qemu_obj_id)
+        : Component(name, params, c)
+        , m_lib(QemuInstance::get(get_config()).get_lib())
+        , m_obj(m_lib.object_new(qemu_obj_id))
+    {}
+
     virtual ~QemuComponent()
     {
         if (m_obj) {

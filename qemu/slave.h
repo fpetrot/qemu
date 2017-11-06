@@ -38,6 +38,13 @@ public:
         p_bus.register_mapped_ev_listener(this);
     }
 
+    QemuSlave(sc_core::sc_module_name n, const Parameters &params, ConfigManager &c,
+              const char * qemu_obj_id)
+        : QemuComponent(n, params, c, qemu_obj_id), p_bus("mem", *this)
+    {
+        p_bus.register_mapped_ev_listener(this);
+    }
+
     virtual ~QemuSlave() {}
 
     /* tlm::tlm_fw_transport_if<> */
