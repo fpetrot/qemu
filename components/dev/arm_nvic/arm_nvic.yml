@@ -1,0 +1,13 @@
+component:
+  implementation: qemu-arm-nvic
+  type: arm-nvic
+  class: QemuArmNvic
+  include: arm_nvic.h
+  description: ARM NVIC interrupt controller provided by QEMU.
+  parameters:
+    num-irq:
+      type: uint32
+      default: 64
+      description: Number of interrupt input lines.
+      advanced: true
+
