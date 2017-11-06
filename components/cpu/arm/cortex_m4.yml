@@ -1,0 +1,8 @@
+include: arm.inc.yml
+
+component:
+  implementation: qemu-cpu-arm-cortex-m4
+  type: cpu-arm-cortex-m4
+  class: QemuCpuArmCortexM4
+  include: cortex_m4.h
+  description: ARM Cortex-M4 CPU simulation provided by QEMU.
