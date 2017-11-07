@@ -1,0 +1,18 @@
+include: arm.inc.yml
+
+component:
+  implementation: qemu-cpu-arm-v7m
+  type: cpu-arm-v7m
+  class: QemuCpuArmV7M
+  include: armv7m.h
+  description: ARM Cortex-Mx CPU subsystem including nvic and bit-banding memory provided by QEMU.
+  parameters:
+    cpu-model:
+      type: string
+      default:  "cortex-m3"
+      description: CPU type for the armv7m subsystem, possible type are cortex-m3 and cortex-m4
+    num-irq:
+      type: uint32
+      default: 240
+      description: Number of available interrupts on CPU subsystem, maximun is 240
+
