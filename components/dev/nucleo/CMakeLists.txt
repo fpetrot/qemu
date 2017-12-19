@@ -1,0 +1,2 @@
+add_subdirectory(nucleo_timer)
+add_subdirectory(nucleo_syscfg)

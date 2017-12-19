@@ -2,3 +2,4 @@
 add_subdirectory(uart_16550)
 add_subdirectory(arm_gic)
 add_subdirectory(arm_nvic)
+add_subdirectory(nucleo)
