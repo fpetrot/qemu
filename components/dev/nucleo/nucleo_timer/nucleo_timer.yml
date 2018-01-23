@@ -1,6 +1,6 @@
 component:
   implementation: qemu-nucleo-timer
-  type: nucleo-timer
+  type: qemu-nucleo-timer
   class: QemuNucleoTimer
   include: nucleo_timer.h
   decription: Nucleo timer using stm32f2xx qemu simulation 
